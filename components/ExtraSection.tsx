@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
-import { ArrowRight, Phone, Search, Users } from "lucide-react";
+import { ArrowRight, Phone, Search, Users, LucideIcon } from "lucide-react";
 
 import "swiper/css";
 import "swiper/css/pagination";
@@ -13,26 +13,26 @@ interface CardProps {
   description: string;
   buttonText: string;
   onClick: () => void;
-  icon: React.ReactNode;
+  icon: LucideIcon; // <-- correct type for lucide-react icons
 }
 
 const Card = ({ title, description, buttonText, onClick, icon }: CardProps) => (
   <div className="w-full h-[280px] group relative bg-neutral/[0.03] p-8 rounded-[2rem] border border-neutral/10 transition-all duration-500 hover:bg-neutral/[0.06] hover:border-primary/40 flex flex-col justify-between overflow-hidden">
     {/* Subtle Background Icon Flare */}
     <div className="absolute -right-4 -top-4 text-primary/[0.03] group-hover:text-primary/[0.06] transition-colors duration-500">
-      {React.cloneElement(icon as React.ReactElement, { size: 120 })}
+      {React.createElement(icon, { size: 120 })}
     </div>
 
     <div className="relative z-10">
       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform duration-500">
-        {React.cloneElement(icon as React.ReactElement, { size: 20 })}
+        {React.createElement(icon, { size: 20 })}
       </div>
       <h4 className="text-xl font-bold tracking-tight mb-2">{title}</h4>
       <p className="text-sm text-neutral/40 leading-relaxed max-w-[260px] group-hover:text-neutral/60 transition-colors">
         {description}
       </p>
     </div>
-
+    
     <button
       onClick={onClick}
       className="relative z-10 group/btn flex justify-between items-center w-full text-neutral text-xs font-bold uppercase tracking-[0.2em] border border-neutral/10 rounded-full px-6 py-3 transition-all duration-300 hover:border-primary hover:bg-primary/5"
@@ -43,7 +43,11 @@ const Card = ({ title, description, buttonText, onClick, icon }: CardProps) => (
   </div>
 );
 
-const ExtraSection = ({ onOpenBookCall }: { onOpenBookCall: () => void }) => {
+interface ExtraSectionProps {
+  onOpenBookCall: () => void;
+}
+
+const ExtraSection = ({ onOpenBookCall }: ExtraSectionProps) => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -59,21 +63,21 @@ const ExtraSection = ({ onOpenBookCall }: { onOpenBookCall: () => void }) => {
         {/* DESKTOP GRID */}
         <div className="hidden lg:grid grid-cols-3 gap-8">
           <Card
-            icon={<Phone />}
+            icon={Phone}
             title="Let’s Talk Strategy"
             description="Expert insights to boost your brand. Schedule a focused deep-dive."
             buttonText="Book a Call"
             onClick={onOpenBookCall}
           />
           <Card
-            icon={<Search />}
+            icon={Search}
             title="Brand Checkup"
             description="Quick wins for improving your current digital presence and UX."
             buttonText="Review My Brand"
             onClick={onOpenBookCall}
           />
           <Card
-            icon={<Users />}
+            icon={Users}
             title="Refer & Earn"
             description="Earn 5% recurring commission for every successful referral."
             buttonText="Join now"
@@ -95,7 +99,7 @@ const ExtraSection = ({ onOpenBookCall }: { onOpenBookCall: () => void }) => {
           >
             <SwiperSlide>
               <Card
-                icon={<Phone />}
+                icon={Phone}
                 title="Strategy"
                 description="Expert insights to boost your brand. Schedule a call."
                 buttonText="Book Now"
@@ -104,7 +108,7 @@ const ExtraSection = ({ onOpenBookCall }: { onOpenBookCall: () => void }) => {
             </SwiperSlide>
             <SwiperSlide>
               <Card
-                icon={<Search />}
+                icon={Search}
                 title="Checkup"
                 description="Quick wins for improving your digital presence and UX."
                 buttonText="Start Review"
@@ -113,7 +117,7 @@ const ExtraSection = ({ onOpenBookCall }: { onOpenBookCall: () => void }) => {
             </SwiperSlide>
             <SwiperSlide>
               <Card
-                icon={<Users />}
+                icon={Users}
                 title="Refer"
                 description="Earn 5% recurring commission for every referral."
                 buttonText="Join now"

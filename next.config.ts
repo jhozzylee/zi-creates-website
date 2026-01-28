@@ -1,12 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    turbo: false, // disables Turbopack
-  },
-
   images: {
-    domains: ["media.istockphoto.com"], // keep this
+    domains: ["media.istockphoto.com"],
 
     remotePatterns: [
       {

@@ -66,7 +66,7 @@ const PortfolioModal: React.FC<PortfolioModalProps> = ({ project, onClose, setPr
   };
 
   return (
-    <div className="fixed inset-0 z-[150] flex items-center justify-center bg-background/95 backdrop-blur-xl">
+    <div className="fixed inset-0 z-[150] flex items-center justify-center bg-background/60 backdrop-blur-xl">
       {/* Overlay - Click anywhere outside the content to close */}
       <div className="absolute inset-0" onClick={onClose} />
 

@@ -28,7 +28,7 @@ const Hero = ({ onOpenBookCall }: HeroProps) => {
   }, [isOpen]);
 
   return (
-    <section id="hero" className="bg-background text-neutral pt-24 pb-2">
+    <section id="hero" className="bg-background text-neutral pt-24 md:pt-32 pb-2">
       <div className="max-w-[1280px] mx-auto flex flex-col lg:flex-row items-center justify-between gap-16">
         
         {/* Left Side: Premium Typography Overhaul */}
