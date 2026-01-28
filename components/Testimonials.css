@@ -1,0 +1,36 @@
+/* Fix the 8x typo and improve transition */
+.swiper-pagination-bullet {
+    width: 8px;
+    height: 8px;
+    background-color: #f0f8ff !important;
+    border-radius: 9999px;
+    transition: all 0.3s ease;
+    opacity: 0.4;
+  }
+  
+  .swiper-pagination-bullet-active {
+    background-color: #30D5C8 !important;
+    opacity: 1 !important;
+    width: 12px;
+    height: 12px;
+  }
+  
+  /* Custom Swiper Navigation Buttons */
+  .swiper-button-prev,
+  .swiper-button-next {
+    color: #30D5C8;
+    transition: opacity 0.3s ease;
+    opacity: 0;
+  }
+  
+  /* Show arrows on hover of the .testimonials-section */
+  .testimonials-section:hover .swiper-button-prev,
+  .testimonials-section:hover .swiper-button-next {
+    opacity: 1;
+  }
+  
+  /* Standard Swiper pagination position */
+  .swiper-pagination {
+    position: relative !important;
+    margin-top: 40px !important;
+  }
