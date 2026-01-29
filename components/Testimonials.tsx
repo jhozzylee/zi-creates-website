@@ -27,7 +27,7 @@ const TestimonialCard = ({ photo, quote, name, title, logo }: TestimonialCardPro
         <img
           src={photo}
           alt={name}
-          className="w-[280px] h-[360px] md:w-[320px] md:h-[420px] object-cover rounded-[2.5rem] grayscale hover:grayscale-0 transition-all duration-700 shadow-2xl"
+          className="w-[280px] h-[360px] md:w-[320px] md:h-[420px] object-cover rounded-[2.5rem] transition-all duration-700 shadow-2xl"
         />
       </div>
 
@@ -47,7 +47,7 @@ const TestimonialCard = ({ photo, quote, name, title, logo }: TestimonialCardPro
           <img 
             src={logo} 
             alt="Company Logo" 
-            className="h-6 md:h-8 opacity-40 grayscale invert brightness-200" 
+            className="h-6 md:h-8 opacity-40 brightness-200" 
           />
         </div>
       </div>

@@ -57,7 +57,7 @@ const ExtraSection = ({ onOpenBookCall }: ExtraSectionProps) => {
   if (!mounted) return null;
 
   return (
-    <section className="bg-background text-neutral pb-32 px-6 scroll-mt-20">
+    <section className="bg-background text-neutral pb-32 px-4 scroll-mt-20">
       <div className="max-w-[1280px] mx-auto">
         
         {/* DESKTOP GRID */}

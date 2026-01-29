@@ -70,11 +70,23 @@ const Hero = ({ onOpenBookCall }: HeroProps) => {
           <div className="flex flex-col lg:flex-row items-center gap-4 lg:gap-[40px]">
             <CTAButton text="Book a Call" onClick={onOpenBookCall} />
             <button
-              onClick={() => setOpen(true)}
-              className="group flex items-center text-[10px] font-bold uppercase tracking-[0.3em] text-neutral/40 hover:text-primary transition-all duration-300"
+            onClick={() => setOpen(true)}
+            className="group flex items-center text-[9px] font-semibold uppercase tracking-[0.5em] text-neutral-400 hover:text-primary transition-colors duration-500"
             >
-              Watch Reel
-              <span className="ml-4 group-hover:ml-5 transition-all duration-200 text-primary">▶</span>
+              <span className="mr-4 transition-all duration-500 group-hover:tracking-[0.7em]">Watch Reel</span>
+              
+              <div className="relative flex items-center justify-center w-10 h-10 border border-neutral-700 rounded-full group-hover:border-primary transition-all duration-700 ease-out overflow-hidden">
+                
+                {/* Background fill effect */}
+                <span className="absolute inset-0 bg-primary/5 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                
+                <svg 
+                viewBox="0 0 24 24" 
+                className="w-2 h-2 fill-current relative z-10 transition-transform duration-500 group-hover:scale-125"
+                >
+                  <path d="M5 3l14 9-14 9V3z" />
+                </svg>
+                </div>
             </button>
           </div>
         </div>

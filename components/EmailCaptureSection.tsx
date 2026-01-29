@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Send, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 const EmailCaptureSection = () => {
   const handleSubmit = (e: React.FormEvent) => {
@@ -45,7 +45,7 @@ const EmailCaptureSection = () => {
           <form className="w-full max-w-[480px]" onSubmit={handleSubmit}>
             <div className="group relative">
               {/* Animated Border Gradient on Focus */}
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-transparent rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 blur-[2px]" />
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-transparent rounded-full opacity-0 group-focus-within:opacity-10 transition-opacity duration-500 blur-[2px]" />
               
               <div className="relative p-1.5 rounded-full border border-neutral/20 bg-neutral/[0.03] backdrop-blur-md flex items-center transition-all duration-300 hover:border-neutral/40 focus-within:border-primary">
                 <input
@@ -53,7 +53,7 @@ const EmailCaptureSection = () => {
                   type="email"
                   placeholder="Enter your professional email"
                   required
-                  className="w-full pl-8 pr-4 py-4 bg-transparent text-neutral text-sm placeholder:text-neutral/30 focus:outline-none"
+                  className="w-full pl-8 pr-4 py-4 bg-transparent text-neutral text-base placeholder:text-neutral/30 focus:outline-none"
                 />
                 <button
                   type="submit"
@@ -61,9 +61,6 @@ const EmailCaptureSection = () => {
                 >
                   <span className="hidden sm:block">Request Demo</span>
                   <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                  <span className="block sm:hidden">
-                    <Send size={18} />
-                  </span>
                 </button>
               </div>
             </div>

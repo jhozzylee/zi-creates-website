@@ -75,113 +75,123 @@ const ContactModal = ({ isOpen, onClose }: ContactModalProps) => {
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-background/80 backdrop-blur-xl transition-opacity"
         onClick={onClose}
       />
 
-      {/* Container */}
-      <div className="relative bg-background border border-neutral/10 text-neutral w-full max-w-5xl max-h-[95vh] overflow-y-auto rounded-[2.5rem] p-8 md:p-16 shadow-2xl animate-in fade-in zoom-in duration-300">
+      {/* Modal Container */}
+      <div className="relative bg-background border border-neutral/10 text-neutral w-full max-w-5xl max-h-[95vh] rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden">
         
-        <button
-          onClick={onClose}
-          className="absolute top-8 right-10 text-neutral/40 hover:text-primary transition-colors text-2xl"
-        >
-          ✕
-        </button>
-
-        {/* Header Area */}
-        <div className="mb-12">
-          <span className="uppercase tracking-[0.2em] text-xs font-bold text-primary mb-4 block">Get In Touch</span>
-          <h2 className="text-[32px] md:text-[48px] font-bold leading-tight mb-4">
-            Contact <span className="text-primary">Zi Creates</span>
-          </h2>
-          <p className="text-lg text-neutral/60 font-light max-w-xl">
-            Have questions, project ideas, or just want to say hi? We’d love to hear from you.
-          </p>
-        </div>
-
-        {/* Info Bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
-          <a href="mailto:support@zicreates.com" className="group flex items-center gap-4 p-5 rounded-2xl bg-neutral/5 border border-neutral/5 hover:border-primary/20 transition-all">
-            <div className="text-primary text-xl font-light italic">@</div>
-            <div>
-              <p className="text-[10px] uppercase tracking-widest text-neutral/40">Email Us</p>
-              <p className="font-medium group-hover:text-primary transition-colors">support@zicreates.com</p>
-            </div>
-          </a>
-          <a href="tel:+2348137956463" className="group flex items-center gap-4 p-5 rounded-2xl bg-neutral/5 border border-neutral/5 hover:border-primary/20 transition-all">
-            <div className="text-primary text-xl font-light italic">#</div>
-            <div>
-              <p className="text-[10px] uppercase tracking-widest text-neutral/40">Call Us</p>
-              <p className="font-medium group-hover:text-primary transition-colors">+234 813 795 6463</p>
-            </div>
-          </a>
-        </div>
-
-        {submitted ? (
-          <div className="py-20 text-center animate-in fade-in slide-in-from-bottom-4">
-            <div className="text-5xl mb-6">📩</div>
-            <h3 className="text-2xl font-bold mb-2">Message Received</h3>
-            <p className="text-neutral/60 font-light italic">We'll get back to you shortly.</p>
+        {/* Sticky Header */}
+        <div className="sticky top-0 z-20 bg-background/90 backdrop-blur-md border-b border-neutral/10 p-8 md:p-16 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div>
+            <span className="uppercase tracking-[0.2em] text-xs font-bold text-primary mb-2 block">
+              Get In Touch
+            </span>
+            <h2 className="text-[32px] md:text-[48px] font-bold leading-tight">
+              Contact <span className="text-primary">Zi Creates</span>
+            </h2>
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
-              <InputField
-                label="Full Name *"
-                name="fullName"
-                placeholder="John Doe"
-                value={formData.fullName}
-                onChange={handleChange}
-                required
-              />
-              <InputField
-                label="Email *"
-                name="email"
-                type="email"
-                placeholder="john@example.com"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-              <InputField
-                label="Phone Number"
-                name="contact"
-                placeholder="+1 (234) 567 8901"
-                value={formData.contact}
-                onChange={handleChange}
-              />
-              <InputField
-                label="Company Name"
-                name="company"
-                placeholder="Your organization"
-                value={formData.company}
-                onChange={handleChange}
-              />
-            </div>
+          <button
+            onClick={onClose}
+            className="absolute top-6 right-6 md:static md:ml-8 text-neutral/40 hover:text-primary transition-colors text-2xl"
+          >
+            ✕
+          </button>
+        </div>
 
-            <div className="flex flex-col gap-3">
-              <label className="text-sm font-bold uppercase tracking-wider text-neutral/50">Your Message *</label>
-              <textarea
-                name="note"
-                placeholder="How can we help?"
-                className="w-full p-5 rounded-2xl border border-neutral/10 bg-neutral/5 min-h-[150px] focus:border-primary/50 focus:bg-primary/5 outline-none transition-all placeholder:text-neutral/30"
-                value={formData.note}
-                onChange={handleChange}
-                required
-              />
-            </div>
+        {/* Scrollable Content */}
+        <div className="overflow-y-auto p-8 md:p-16 flex-1">
+          {/* Info Bar */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+            <a
+              href="mailto:support@zicreates.com"
+              className="group flex items-center gap-4 p-5 rounded-2xl bg-neutral/5 border border-neutral/5 hover:border-primary/20 transition-all"
+            >
+              <div className="text-primary text-xl font-light italic">@</div>
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-neutral/40">Email Us</p>
+                <p className="font-medium group-hover:text-primary transition-colors">support@zicreates.com</p>
+              </div>
+            </a>
+            <a
+              href="tel:+2348137956463"
+              className="group flex items-center gap-4 p-5 rounded-2xl bg-neutral/5 border border-neutral/5 hover:border-primary/20 transition-all"
+            >
+              <div className="text-primary text-xl font-light italic">#</div>
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-neutral/40">Call Us</p>
+                <p className="font-medium group-hover:text-primary transition-colors">+234 813 795 6463</p>
+              </div>
+            </a>
+          </div>
 
-            <div className="flex justify-end pt-4">
-              <CTAButton 
-                text={isSubmitting ? "Sending..." : "Send Message"} 
-                type="submit" 
-                disabled={isSubmitting} 
-              />
+          {submitted ? (
+            <div className="py-20 text-center animate-in fade-in slide-in-from-bottom-4">
+              <div className="text-5xl mb-6">📩</div>
+              <h3 className="text-2xl font-bold mb-2">Message Received</h3>
+              <p className="text-neutral/60 font-light italic">We'll get back to you shortly.</p>
             </div>
-          </form>
-        )}
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
+                <InputField
+                  label="Full Name *"
+                  name="fullName"
+                  placeholder="John Doe"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  required
+                />
+                <InputField
+                  label="Email *"
+                  name="email"
+                  type="email"
+                  placeholder="john@example.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+                <InputField
+                  label="Phone Number"
+                  name="contact"
+                  placeholder="+1 (234) 567 8901"
+                  value={formData.contact}
+                  onChange={handleChange}
+                />
+                <InputField
+                  label="Company Name"
+                  name="company"
+                  placeholder="Your organization"
+                  value={formData.company}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <label className="text-sm font-bold uppercase tracking-wider text-neutral/50">Your Message *</label>
+                <textarea
+                  name="note"
+                  placeholder="How can we help?"
+                  className="w-full p-5 rounded-2xl border border-neutral/10 bg-neutral/5 min-h-[150px] focus:border-primary/50 focus:bg-primary/5 outline-none transition-all placeholder:text-neutral/30"
+                  value={formData.note}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              {/* CTA Button always visible at the bottom of scrollable area */}
+              <div className="flex justify-end pt-4">
+                <CTAButton
+                  text={isSubmitting ? "Sending..." : "Send Message"}
+                  type="submit"
+                  disabled={isSubmitting}
+                />
+              </div>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );
