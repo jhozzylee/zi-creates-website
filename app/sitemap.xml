@@ -1,0 +1,48 @@
+import { MetadataRoute } from 'next';
+import { createClient } from "next-sanity";
+
+const client = createClient({
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "j61z87re",
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
+  useCdn: false, // Set to false to ensure Google always gets the freshest content
+  apiVersion: "2024-01-01",
+});
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const baseUrl = "https://www.zicreates.com";
+
+  // 1. Fetch all dynamic portfolio slugs from Sanity
+  const query = `*[_type == "portfolio"]{ "slug": slug.current, _updatedAt }`;
+  const projects = await client.fetch(query);
+
+  const projectUrls = projects.map((project: any) => ({
+    url: `${baseUrl}/portfolio/${project.slug}`,
+    lastModified: new Date(project._updatedAt),
+    changeFrequency: 'monthly',
+    priority: 0.8,
+  }));
+
+  // 2. Define your static main pages
+  const staticPages = [
+    {
+      url: baseUrl,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 1,
+    },
+    {
+      url: `${baseUrl}/portfolio`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/contact`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+  ];
+
+  return [...staticPages, ...projectUrls];
+}

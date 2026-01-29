@@ -32,10 +32,10 @@ const BookCall = ({ isOpen, onClose }: BookCallProps) => {
       />
       
       {/* Modal Container */}
-      <div className="relative bg-background border border-neutral/10 max-w-5xl w-full rounded-[2.5rem] p-6 md:p-12 shadow-2xl animate-in fade-in zoom-in duration-300 overflow-hidden">
+      <div className="relative bg-background border border-neutral/10 text-neutral px-6 md:px-12 py-6 w-full max-w-5xl max-h-[95vh] rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden">
         
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 px-2">
+        <div className="sticky top-0 z-20 bg-background/90 backdrop-blur-md border-b border-neutral/10 p-8 md:p-16 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="space-y-1">
             <span className="uppercase tracking-widest text-xs font-bold text-primary">Strategy Session</span>
             <h2 className="text-2xl md:text-3xl font-bold text-neutral">
@@ -51,7 +51,7 @@ const BookCall = ({ isOpen, onClose }: BookCallProps) => {
         </div>
 
         {/* Booking Interface */}
-        <div className="h-[600px] md:h-[650px] w-full bg-neutral/5 rounded-2xl overflow-hidden border border-neutral/5">
+        <div className="h-[600px] md:h-[650px] w-full bg-neutral/5 rounded-2xl mt-6 overflow-hidden border border-neutral/5">
           <Cal
             namespace="booking"
             calLink="zi-creates/booking"
