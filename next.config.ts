@@ -1,9 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  transpilePackages: ["ai"],
+
   images: {
     domains: ["media.istockphoto.com"],
-
     remotePatterns: [
       {
         protocol: "https",

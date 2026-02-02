@@ -60,8 +60,16 @@ const EmailCaptureSection = () => {
                   className="whitespace-nowrap px-8 py-4 rounded-full bg-neutral text-background text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-primary hover:text-background transition-all duration-300 flex items-center gap-3"
                 >
                   <span className="hidden sm:block">Request Demo</span>
-                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  <svg
+    viewBox="0 0 1024 1024"
+    className="w-5 h-5"
+    fill="currentColor"
+    aria-hidden="true"
+  >
+    <path d="M41.353846 876.307692l86.646154-320.984615h366.276923c9.846154 0 19.692308-9.846154 19.692308-19.692308v-39.384615c0-9.846154-9.846154-19.692308-19.692308-19.692308H128l-84.676923-315.076923C41.353846 157.538462 39.384615 151.630769 39.384615 145.723077c0-13.784615 13.784615-27.569231 29.538462-25.6 3.938462 0 5.907692 1.969231 9.846154 1.969231l886.153846 364.307692c11.815385 3.938462 19.692308 15.753846 19.692308 27.569231s-7.876923 21.661538-17.723077 25.6L78.769231 913.723077c-3.938462 1.969231-7.876923 1.969231-11.815385 1.969231-15.753846-1.969231-27.569231-13.784615-27.569231-29.538462 0-3.938462 0-5.907692 1.969231-9.846154z" />
+  </svg>
                 </button>
+                
               </div>
             </div>
             <p className="mt-4 ml-6 text-[10px] text-neutral/30 uppercase tracking-widest font-medium">
