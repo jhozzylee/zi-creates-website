@@ -2,17 +2,43 @@
 
 import { useChat } from 'ai/react';
 import { useState, useEffect, useRef } from 'react';
-import BookCall from './BookCall'; // Import your actual component
+import BookCall from './BookCall'; 
+import PaymentModal from "./PaymentModal";
+import ReactMarkdown from 'react-markdown';
 
 export default function AIChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false); 
   
+  // New states to handle the Payment Modal correctly
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<{
+    title: string;
+    price: number;
+    planId: string;
+  } | null>(null);
+
   const { messages, input, handleInputChange, handleSubmit } = useChat({
-    // This is the bridge: When the AI calls the tool, your modal opens
     onToolCall({ toolCall }) {
+      // 1. Handling the Consultation Modal
       if (toolCall.toolName === 'triggerBookCallModal') {
         setIsModalOpen(true);
+      }
+      
+      // 2. Handling the Payment Modal with dynamic plan data
+      if (toolCall.toolName === 'triggerPaymentModal') {
+        const { planName, price, planId } = toolCall.args as { 
+            planName: string; 
+            price: number; 
+            planId: string 
+        };
+        
+        setSelectedPlan({ 
+            title: planName, 
+            price: price, 
+            planId: planId || "" 
+        });
+        setIsPaymentModalOpen(true); 
       }
     }
   });
@@ -20,27 +46,32 @@ export default function AIChat() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<HTMLDivElement>(null);
 
-  // FIX: Jumps to the START (top) of the new message
   useEffect(() => {
     if (isOpen && lastMessageRef.current) {
       lastMessageRef.current.scrollIntoView({ 
         behavior: "smooth", 
-        block: "start" // This ensures the top of the message is visible
+        block: "start" 
       });
     }
   }, [messages, isOpen]);
 
   return (
     <>
-      {/* 1. Use your actual BookCall component here */}
+      {/* Consultation Modal */}
       <BookCall 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
       />
 
+      {/* Payment Modal Integration */}
+      <PaymentModal 
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        selectedPlan={selectedPlan}
+      />
+
       <div className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-[100] font-light font-poppins">
         
-        {/* Trigger Button */}
         <button 
           onClick={() => setIsOpen(!isOpen)}
           className="bg-primary text-background px-6 py-3 md:px-8 md:py-4 rounded-full text-[10px] font-bold uppercase tracking-[0.4em] shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:scale-105 transition-all active:scale-95 flex items-center gap-3"
@@ -83,15 +114,29 @@ export default function AIChat() {
                   ? 'bg-primary text-background font-semibold' 
                   : 'bg-neutral/5 text-neutral/80 border border-neutral/5'
                 }`}>
-                  {m.content}
+                  
+                  <div className={`markdown-content ${m.role === 'user' ? 'text-background' : 'text-neutral/80'}`}>
+                    <ReactMarkdown
+                      components={{
+                        h1: ({node, ...props}) => <h1 className="text-sm font-bold uppercase tracking-wider mb-2" {...props} />,
+                        h2: ({node, ...props}) => <h2 className="text-[12px] font-bold uppercase tracking-widest mb-1 mt-3 text-primary" {...props} />,
+                        p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
+                        ul: ({node, ...props}) => <ul className="list-disc list-inside mb-2 space-y-1" {...props} />,
+                        li: ({node, ...props}) => <li className="ml-1" {...props} />,
+                        strong: ({node, ...props}) => <strong className="font-bold text-primary" {...props} />,
+                        hr: ({node, ...props}) => <hr className="border-neutral/10 my-4" {...props} />,
+                      }}
+                    >
+                      {m.content}
+                    </ReactMarkdown>
+                  </div>
 
-                  {/* 2. Manual Trigger Button inside the chat bubble */}
                   {m.role === 'assistant' && m.content.toLowerCase().includes('consultation') && (
                     <button 
                       onClick={() => setIsModalOpen(true)}
-                      className="mt-4 w-full py-3 bg-primary text-background rounded-full text-[10px] font-bold uppercase tracking-widest hover:brightness-110 transition-all"
+                      className="mt-4 w-full py-3 bg-primary text-background rounded-full text-[10px] font-bold uppercase tracking-widest hover:brightness-110 transition-all shadow-lg"
                     >
-                      Booking Consultation
+                      Book Consultation
                     </button>
                   )}
                 </div>
