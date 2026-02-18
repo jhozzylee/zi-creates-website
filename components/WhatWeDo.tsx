@@ -1,9 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ArrowRight, Sparkles } from "lucide-react";
-
-// Note: Ensure these components are updated to the premium modal style we created!
+import { ArrowRight } from "lucide-react";
+import { motion, AnimatePresence, Variants } from "framer-motion"; // Added
 import Branding from "./Branding";
 import VisualDesign from "./AI";
 import Marketing from "./Marketing";
@@ -14,15 +13,37 @@ interface PillarCardProps {
   items: string[];
   buttonText: string;
   onLearnMore: () => void;
+  index: number; // Added for stagger
 }
 
-const PillarCard = ({ title, items, buttonText, onLearnMore }: PillarCardProps) => {
+// Fixed Transition for Build
+const fluidTransition = {
+  type: "spring" as const,
+  damping: 35,
+  stiffness: 200,
+  mass: 1,
+};
+
+const PillarCard = ({ title, items, buttonText, onLearnMore, index }: PillarCardProps) => {
+  const cardVariants: Variants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { ...fluidTransition, delay: index * 0.1 } 
+    },
+  };
+
   return (
-    <div 
-      className="group relative w-full flex flex-col justify-between p-8 md:p-10 rounded-[2.5rem] bg-neutral/[0.03] border border-neutral/10 transition-all duration-500 hover:bg-neutral/[0.06] hover:border-primary/30 hover:-translate-y-2 shadow-2xl shadow-transparent hover:shadow-primary/5"
+    <motion.div 
+      variants={cardVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      whileHover={{ y: -8, backgroundColor: "rgba(255, 255, 255, 0.06)" }}
+      className="group relative w-full flex flex-col justify-between p-8 md:p-10 rounded-[2.5rem] bg-neutral/[0.03] border border-neutral/10 shadow-2xl shadow-transparent hover:shadow-primary/5 transition-colors duration-500"
     >
       <div>
-        {/* Subtle Category Icon/Indicator */}
         <div className="mb-6 flex items-center gap-2">
           <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
           <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral/40">Capability</span>
@@ -33,8 +54,8 @@ const PillarCard = ({ title, items, buttonText, onLearnMore }: PillarCardProps) 
         </h2>
         
         <ul className="space-y-4 mb-10">
-          {items.map((item, index) => (
-            <li key={index} className="flex items-center gap-3 text-sm font-light text-neutral/50 group-hover:text-neutral/80 transition-colors">
+          {items.map((item, i) => (
+            <li key={i} className="flex items-center gap-3 text-sm font-light text-neutral/50 group-hover:text-neutral/80 transition-colors">
               <span className="text-primary/40 group-hover:text-primary transition-colors text-[10px]">/</span>
               {item}
             </li>
@@ -53,25 +74,29 @@ const PillarCard = ({ title, items, buttonText, onLearnMore }: PillarCardProps) 
           <ArrowRight className="w-4 h-4" />
         </div>
       </button>
-    </div>
+    </motion.div>
   );
 };
 
 const WhatWeDo = () => {
   const [openModal, setOpenModal] = useState<string | null>(null);
-
   const closeModal = () => setOpenModal(null);
 
-  // Prevent background scroll when modal is open
   useEffect(() => {
     if (openModal) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
   }, [openModal]);
 
   return (
-    <section id="services" className="bg-background text-neutral py-24 md:py-32 px-6 scroll-mt-20">
+    <section id="services" className="bg-background text-neutral py-24 md:py-32 px-6 scroll-mt-20 overflow-hidden">
       <div className="max-w-[1280px] mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={fluidTransition}
+          className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6"
+        >
           <div className="space-y-4">
             <span className="text-primary text-[11px] font-bold uppercase tracking-[0.3em]">Our Ecosystem</span>
             <h2 className="text-3xl md:text-5xl font-bold tracking-tighter">
@@ -79,44 +104,36 @@ const WhatWeDo = () => {
             </h2>
           </div>
           <p className="text-neutral/40 text-sm max-w-[300px] font-light leading-relaxed">
-            Scalable creative solutions designed to elevate your market position instantly.
+            Intelligent creative pipelines designed to scale your market position instantly.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Changed Grid to be more stable on mobile while maintaining 4 columns on desktop */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-          <PillarCard
-            title="Branding"
-            items={["Visual Identity", "Brand Strategy", "Brand Style Guide", "Storytelling"]}
-            buttonText="Learn more"
-            onLearnMore={() => setOpenModal("branding")}
-          />
-          <PillarCard
-            title="AI Automation"
-            items={["Custom Agents", "Workflow Automation", "Content Pipelines", "Predictive"]}
-            buttonText="Learn more"
-            onLearnMore={() => setOpenModal("visualDesign")}
-          />
-          <PillarCard
-            title="Marketing"
-            items={["Digital Marketing", "Email Strategy", "Content Creation", "Paid Ads"]}
-            buttonText="Learn more"
-            onLearnMore={() => setOpenModal("marketing")}
-          />
-          <PillarCard
-            title="Website"
-            items={["Web Development", "E-commerce", "SEO Optimization", "UX Prototypes"]}
-            buttonText="Learn more"
-            onLearnMore={() => setOpenModal("website")}
-          />
+          {[
+            { id: "branding", title: "Branding", items: ["Visual Identity", "Brand Strategy", "Brand Style Guide", "Storytelling"] },
+            { id: "visualDesign", title: "AI Automation", items: ["Custom Agents", "Workflow Automation", "Content Pipelines", "Predictive Analytics"] },
+            { id: "marketing", title: "Marketing", items: ["Digital Marketing", "Email Strategy", "Content Automation", "Paid Ads"] },
+            { id: "website", title: "Website", items: ["Web Development", "E-commerce", "SEO Automation", "UX Prototypes"] }
+          ].map((service, index) => (
+            <PillarCard
+              key={service.id}
+              index={index}
+              title={service.title}
+              items={service.items}
+              buttonText="Learn more"
+              onLearnMore={() => setOpenModal(service.id)}
+            />
+          ))}
         </div>
       </div>
 
-      {/* Premium Modals (Ensure these components use the rounded-[2.5rem] style) */}
-      {openModal === "branding" && <Branding isOpen={true} onClose={closeModal} />}
-      {openModal === "visualDesign" && <VisualDesign isOpen={true} onClose={closeModal} />}
-      {openModal === "marketing" && <Marketing isOpen={true} onClose={closeModal} />}
-      {openModal === "website" && <Website isOpen={true} onClose={closeModal} />}
+      {/* Using AnimatePresence for the Modals to ensure smooth exit */}
+      <AnimatePresence>
+        {openModal === "branding" && <Branding isOpen={true} onClose={closeModal} />}
+        {openModal === "visualDesign" && <VisualDesign isOpen={true} onClose={closeModal} />}
+        {openModal === "marketing" && <Marketing isOpen={true} onClose={closeModal} />}
+        {openModal === "website" && <Website isOpen={true} onClose={closeModal} />}
+      </AnimatePresence>
     </section>
   );
 };

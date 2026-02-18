@@ -4,20 +4,42 @@ import React, { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import { ArrowRight, Phone, Search, Users, LucideIcon } from "lucide-react";
+import { motion } from "framer-motion";
 
 import "swiper/css";
 import "swiper/css/pagination";
+
+// Fixed spring config for build stability
+const fluidTransition = {
+  type: "spring" as const,
+  damping: 35,
+  stiffness: 200,
+  mass: 1,
+};
 
 interface CardProps {
   title: string;
   description: string;
   buttonText: string;
   onClick: () => void;
-  icon: LucideIcon; // <-- correct type for lucide-react icons
+  icon: LucideIcon;
+  index: number;
 }
 
-const Card = ({ title, description, buttonText, onClick, icon }: CardProps) => (
-  <div className="w-full h-[280px] group relative bg-neutral/[0.03] p-8 rounded-[2rem] border border-neutral/10 transition-all duration-500 hover:bg-neutral/[0.06] hover:border-primary/40 flex flex-col justify-between overflow-hidden">
+const Card = ({ title, description, buttonText, onClick, icon, index }: CardProps) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ ...fluidTransition, delay: index * 0.1 }}
+    /* whileHover replaces Tailwind's transition-all to stop twitching */
+    whileHover={{ 
+      y: -8, 
+      backgroundColor: "rgba(255, 255, 255, 0.06)",
+      borderColor: "rgba(48, 213, 200, 0.4)" 
+    }}
+    className="w-full h-[280px] group relative bg-neutral/[0.03] p-8 rounded-[2rem] border border-neutral/10 flex flex-col justify-between overflow-hidden cursor-default"
+  >
     {/* Subtle Background Icon Flare */}
     <div className="absolute -right-4 -top-4 text-primary/[0.03] group-hover:text-primary/[0.06] transition-colors duration-500">
       {React.createElement(icon, { size: 120 })}
@@ -28,7 +50,7 @@ const Card = ({ title, description, buttonText, onClick, icon }: CardProps) => (
         {React.createElement(icon, { size: 20 })}
       </div>
       <h4 className="text-xl font-bold tracking-tight mb-2">{title}</h4>
-      <p className="text-sm text-neutral/40 leading-relaxed max-w-[260px] group-hover:text-neutral/60 transition-colors">
+      <p className="text-sm text-neutral/40 leading-relaxed max-w-[260px] group-hover:text-neutral/60 transition-colors duration-500">
         {description}
       </p>
     </div>
@@ -40,7 +62,7 @@ const Card = ({ title, description, buttonText, onClick, icon }: CardProps) => (
       <span className="group-hover/btn:text-primary transition-colors">{buttonText}</span>
       <ArrowRight className="w-4 h-4 text-neutral/30 group-hover/btn:text-primary group-hover/btn:translate-x-1 transition-all" />
     </button>
-  </div>
+  </motion.div>
 );
 
 interface ExtraSectionProps {
@@ -56,33 +78,39 @@ const ExtraSection = ({ onOpenBookCall }: ExtraSectionProps) => {
 
   if (!mounted) return null;
 
+  const extraCards = [
+    {
+      icon: Phone,
+      title: "Let’s Talk Strategy",
+      description: "Expert insights to boost your brand. Schedule a focused deep-dive.",
+      buttonText: "Book a Call",
+      onClick: onOpenBookCall,
+    },
+    {
+      icon: Search,
+      title: "Brand Checkup",
+      description: "Quick wins for improving your current digital presence and UX.",
+      buttonText: "Review My Brand",
+      onClick: onOpenBookCall,
+    },
+    {
+      icon: Users,
+      title: "Refer & Earn",
+      description: "Earn 5% recurring commission for every successful referral.",
+      buttonText: "Join now",
+      onClick: () => console.log("Join Now clicked"),
+    }
+  ];
+
   return (
-    <section className="bg-background text-neutral pb-32 px-4 scroll-mt-20">
+    <section className="bg-background text-neutral pb-32 px-4 scroll-mt-20 overflow-hidden">
       <div className="max-w-[1280px] mx-auto">
         
         {/* DESKTOP GRID */}
         <div className="hidden lg:grid grid-cols-3 gap-8">
-          <Card
-            icon={Phone}
-            title="Let’s Talk Strategy"
-            description="Expert insights to boost your brand. Schedule a focused deep-dive."
-            buttonText="Book a Call"
-            onClick={onOpenBookCall}
-          />
-          <Card
-            icon={Search}
-            title="Brand Checkup"
-            description="Quick wins for improving your current digital presence and UX."
-            buttonText="Review My Brand"
-            onClick={onOpenBookCall}
-          />
-          <Card
-            icon={Users}
-            title="Refer & Earn"
-            description="Earn 5% recurring commission for every successful referral."
-            buttonText="Join now"
-            onClick={() => console.log("Join Now clicked")}
-          />
+          {extraCards.map((card, i) => (
+            <Card key={i} {...card} index={i} />
+          ))}
         </div>
 
         {/* MOBILE & TABLET SLIDER */}
@@ -96,37 +124,15 @@ const ExtraSection = ({ onOpenBookCall }: ExtraSectionProps) => {
               640: { slidesPerView: 1.9, centeredSlides: false },
               768: { slidesPerView: 2.2 },
             }}
+            className="!overflow-visible"
           >
-            <SwiperSlide>
-              <Card
-                icon={Phone}
-                title="Strategy"
-                description="Expert insights to boost your brand. Schedule a call."
-                buttonText="Book Now"
-                onClick={onOpenBookCall}
-              />
-            </SwiperSlide>
-            <SwiperSlide>
-              <Card
-                icon={Search}
-                title="Checkup"
-                description="Quick wins for improving your digital presence and UX."
-                buttonText="Start Review"
-                onClick={onOpenBookCall}
-              />
-            </SwiperSlide>
-            <SwiperSlide>
-              <Card
-                icon={Users}
-                title="Refer"
-                description="Earn 5% recurring commission for every referral."
-                buttonText="Join now"
-                onClick={() => console.log("Join Now")}
-              />
-            </SwiperSlide>
+            {extraCards.map((card, i) => (
+              <SwiperSlide key={i} className="!h-auto">
+                <Card {...card} index={i} />
+              </SwiperSlide>
+            ))}
           </Swiper>
           
-          {/* Custom Horizontal Bar Pagination for Mobile */}
           <div className="extra-dots mt-12 flex justify-center" />
         </div>
       </div>

@@ -2,7 +2,34 @@
 
 import React from "react";
 import Image from "next/image";
-import CTAButton from "./CTAButton"; // Import your component
+import { motion, Variants } from "framer-motion";
+import CTAButton from "./CTAButton";
+
+// 💫 Fluid Spring Motion
+const fluidTransition = {
+  type: "spring" as const,
+  damping: 35,
+  stiffness: 200,
+  mass: 1,
+};
+
+const fadeUp: Variants = {
+  initial: { opacity: 0, y: 30 },
+  whileInView: { 
+    opacity: 1, 
+    y: 0,
+    transition: fluidTransition
+  }
+};
+
+const staggerContainer: Variants = {
+  initial: {},
+  whileInView: { 
+    transition: { staggerChildren: 0.1 } 
+  }
+};
+
+const viewportSettings = { once: true, margin: "-50px" };
 
 const Careers = () => {
   const handleEmailClick = () => {
@@ -10,84 +37,145 @@ const Careers = () => {
   };
 
   const values = [
-    { title: "Creative Freedom", desc: "We believe great ideas come from collaboration and radical experimentation." },
-    { title: "Innovative Culture", desc: "Stay on the cutting edge of branding, motion design, and digital marketing." },
-    { title: "Growth Path", desc: "As a growing agency, your trajectory is limited only by your own ambition." },
-    { title: "Supportive Team", desc: "Work alongside passionate experts who value quality over shortcuts." },
-    { title: "Lasting Impact", desc: "Contribute to projects that create meaningful, unforgettable brand experiences." },
-    { title: "Fast-Paced", desc: "We ship fast and iterate often, keeping our work agile and our skills sharp." },
+    { title: "Creative Logic", desc: "We believe the best solutions emerge from the intersection of elite design and technical precision." },
+    { title: "Systems Thinking", desc: "Stay at the forefront of branding, motion engineering, and intelligent growth pipelines." },
+    { title: "Velocity Path", desc: "As a high performance agency, your trajectory is limited only by your own ability to scale." },
+    { title: "Expert Collective", desc: "Work alongside specialized leads who value absolute quality over manual shortcuts." },
+    { title: "Market Impact", desc: "Contribute to systems that create measurable authority and unforgettable experiences." },
+    { title: "High Output", desc: "We build fast and optimize often, keeping our work precise and our skills sharp." },
   ];
 
   return (
-    <section className="bg-background text-neutral py-24 px-6">
+    <section className="bg-background text-neutral py-24 px-6 overflow-hidden">
       <div className="max-w-[1280px] mx-auto">
         
         {/* --- Header --- */}
-        <div className="max-w-4xl mb-32">
-          <span className="uppercase tracking-[0.2em] text-sm font-bold text-primary/80 mb-6 block">
+        <motion.div 
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={viewportSettings}
+          transition={fluidTransition}
+          className="max-w-4xl mb-32"
+        >
+          <span className="uppercase tracking-[0.4em] text-[10px] font-bold text-primary mb-6 block">
             Work With Us
           </span>
-          <h1 className="text-[36px] sm:text-[44px] lg:text-[64px] font-bold leading-[1.1] mb-8">
-            Help us build the <span className="text-primary">future of brand</span> storytelling.
+          <h1 className="text-[40px] sm:text-[50px] lg:text-[72px] font-bold leading-[1.05] mb-8 tracking-tighter">
+            Engineer the <span className="text-primary italic font-serif font-light">future</span> <br />
+            of brand velocity.
           </h1>
-          <p className="text-xl lg:text-2xl font-light leading-relaxed text-neutral/70">
-            While we don’t have open roles today, <strong className="text-neutral font-semibold">Zi Creates</strong> is growing fast. We’re always looking for the next generation of passionate, driven creatives.
+          <p className="text-xl lg:text-2xl font-light leading-relaxed text-neutral/50">
+            Zi Creates is expanding. We are always looking for the next generation of <span className="text-neutral font-medium italic">strategic thinkers</span> and creative engineers.
           </p>
-        </div>
+        </motion.div>
 
         {/* --- Feature Grid --- */}
-        <div className="grid lg:grid-cols-2 gap-16 items-center mb-40">
-          <div className="relative aspect-square rounded-[2rem] overflow-hidden shadow-2xl border border-neutral/10">
+        <div className="grid lg:grid-cols-2 gap-20 items-center mb-48">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={viewportSettings}
+            transition={fluidTransition}
+            className="relative aspect-square rounded-[3rem] overflow-hidden border border-neutral/10"
+          >
             <Image
               src="/Career-img.jpg"
-              alt="Creative team collaboration"
+              alt="Creative engineering team"
               fill
               className="object-cover"
               priority
             />
-            <div className="absolute bottom-8 left-8 bg-background/80 backdrop-blur-md p-6 rounded-2xl border border-white/10 max-w-[280px]">
-              <p className="text-sm font-medium italic">"The best way to predict the future is to design it."</p>
-            </div>
-          </div>
+            <motion.div 
+              initial={{ y: 20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.5, ...fluidTransition }}
+              className="absolute bottom-8 left-8 bg-background/80 backdrop-blur-xl p-8 rounded-[2rem] border border-white/10 max-w-[320px] shadow-2xl"
+            >
+              <p className="text-sm font-light italic leading-relaxed text-neutral/80">
+                "The best way to predict the future is to <span className="text-primary font-medium not-italic">engineer it.</span>"
+              </p>
+            </motion.div>
+          </motion.div>
 
-          <div className="space-y-12">
-            <h2 className="text-4xl font-bold">Why Join Zi Creates?</h2>
-            <div className="grid sm:grid-cols-2 gap-8">
+          <div className="space-y-16">
+            <motion.h2 
+              {...fadeUp}
+              className="text-4xl font-bold tracking-tight"
+            >
+              Why Join <span className="text-neutral/20 italic font-serif">Zi Creates?</span>
+            </motion.h2>
+            
+            <motion.div 
+              variants={staggerContainer}
+              initial="initial"
+              whileInView="whileInView"
+              viewport={viewportSettings}
+              className="grid sm:grid-cols-2 gap-12"
+            >
               {values.map((val, i) => (
-                <div key={i} className="space-y-3">
-                  <div className="h-1 w-8 bg-primary"></div>
-                  <h3 className="text-xl font-bold">{val.title}</h3>
-                  <p className="text-neutral/60 font-light leading-snug">{val.desc}</p>
-                </div>
+                <motion.div 
+                  key={i} 
+                  variants={fadeUp}
+                  className="space-y-4 group"
+                >
+                  <motion.div 
+                    whileHover={{ width: 48 }}
+                    className="h-[2px] w-8 bg-primary transition-all duration-300"
+                  />
+                  <h3 className="text-xl font-bold tracking-tight group-hover:text-primary transition-colors">
+                    {val.title}
+                  </h3>
+                  <p className="text-neutral/40 font-light leading-relaxed text-sm">
+                    {val.desc}
+                  </p>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         </div>
 
-        {/* --- Talent Pool CTA (Using CTAButton) --- */}
-        <div className="relative rounded-[3rem] bg-neutral/5 border border-neutral/10 p-12 lg:p-24 text-center overflow-hidden">
-          <div className="absolute -top-24 -left-24 w-64 h-64 bg-primary/10 blur-[100px] rounded-full" />
+        {/* --- Talent Pool CTA --- */}
+        <motion.div 
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={viewportSettings}
+          transition={fluidTransition}
+          className="relative rounded-[4rem] bg-neutral/[0.02] border border-neutral/10 p-12 lg:p-24 text-center overflow-hidden"
+        >
+          {/* Animated Background Aura */}
+          <motion.div 
+            animate={{ 
+              scale: [1, 1.2, 1],
+              opacity: [0.05, 0.1, 0.05]
+            }}
+            transition={{ duration: 8, repeat: Infinity }}
+            className="absolute -top-24 -left-24 w-96 h-96 bg-primary blur-[120px] rounded-full pointer-events-none" 
+          />
           
           <div className="max-w-2xl mx-auto relative z-10">
-            <h2 className="text-3xl lg:text-5xl font-bold mb-6">Stay on our radar.</h2>
-            <p className="text-lg text-neutral/70 font-light mb-10">
-              Think you’d be a great fit? Send your resume and portfolio to our talent pool. We review every submission when new roles open up.
+            <h2 className="text-4xl lg:text-6xl font-bold mb-8 tracking-tighter">
+              Join the <span className="text-primary italic font-serif font-light">Network.</span>
+            </h2>
+            <p className="text-lg text-neutral/50 font-light mb-12 leading-relaxed">
+              Think you have the technical edge? Send your portfolio to our talent network. We review every submission as we scale our engineering teams.
             </p>
             
-            {/* Using your custom component here */}
-            <CTAButton text="Send Portfolio & CV" onClick={handleEmailClick} />
+            <div className="flex justify-center">
+              <CTAButton text="Submit Profile & Portfolio" onClick={handleEmailClick} />
+            </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* --- Footer Note --- */}
-        <div className="mt-20 flex flex-col items-center">
-          <div className="h-[1px] w-24 bg-neutral/10 mb-8"></div>
-          <p className="text-sm text-neutral/50 italic max-w-2xl text-center leading-relaxed">
-            Zi Creates is an equal opportunity employer. We celebrate diversity
-            and are committed to creating an inclusive environment for all
-            employees.
+        <motion.div 
+          {...fadeUp}
+          className="mt-32 flex flex-col items-center"
+        >
+          <div className="h-px w-24 bg-neutral/10 mb-10"></div>
+          <p className="text-[10px] uppercase tracking-[0.3em] text-neutral/30 font-bold max-w-2xl text-center leading-relaxed">
+            Equal Opportunity Engineering &bull; Global Talent &bull; Zi Creates Studio
           </p>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

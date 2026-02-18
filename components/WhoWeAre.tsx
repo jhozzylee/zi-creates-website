@@ -2,12 +2,20 @@
 
 import React, { useState, useEffect } from "react";
 import { Infinity, Check, ChevronsRight } from "lucide-react";
+import { motion, AnimatePresence, Variants } from "framer-motion"; // Added Variants
 import CTAButton from "./CTAButton";
 
 const WhoWeAre = () => {
   const [isOpen, setOpen] = useState(false);
 
-  // Sync scroll lock with the premium modal
+  // Added 'as const' to fix the TypeScript "string" error
+  const fluidTransition = {
+    type: "spring" as const,
+    damping: 30,
+    stiffness: 150,
+    mass: 0.8,
+  };
+
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
@@ -20,57 +28,70 @@ const WhoWeAre = () => {
     >
       <div className="max-w-[1280px] mx-auto">
         {/* --- HEADER SECTION --- */}
-        <div className="mb-20 space-y-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={fluidTransition}
+          className="mb-20 space-y-4"
+        >
           <span className="text-primary text-[11px] font-bold uppercase tracking-[0.3em]">
             Who We are
           </span>
           <p className="text-neutral/60 text-lg font-light max-w-[500px] pt-4">
-            Struggling to build a brand identity that stands out? We deliver stunning visuals and strategic marketing.
+            Scaling a brand shouldn't be a struggle. We replace manual bottlenecks with intelligent systems that ensure your identity stands out and stays consistent.
           </p>
           <h2 className="text-3xl md:text-5xl font-bold leading-[1.1] max-w-[700px] tracking-tight">
-            High-impact branding, crafted by <span className="text-neutral/30 italic font-light">expert creatives.</span>
+            High impact branding, crafted by <span className="text-neutral/30 italic font-light">creativity and intelligence.</span>
           </h2>
-          
-        </div>
+        </motion.div>
 
-        {/* --- THE PILLARS (Refined Card Design) --- */}
+        {/* --- THE PILLARS --- */}
         <div className="grid md:grid-cols-3 gap-6 lg:gap-10 mb-32">
           {[ 
             {
               icon: <Infinity className="w-5 h-5 text-primary" />,
-              title: "Flexible & Unlimited",
-              text: "Custom branding and visuals tailored to your business, with unlimited refinements until it's just right."
+              title: "Intelligent & Adaptive",
+              text: "Custom branding and creative systems tailored to your business, continuously optimized with automated workflows until it’s exactly right."
             },
             {
               icon: <Check className="w-5 h-5 text-primary" />,
-              title: "Subscribe & Start",
-              text: "Get expert branding, motion design, and digital visuals without the wait—ready when you are."
+              title: "Connect & Automate",
+              text: "Integrate expert motion, design, and AI automation into your workflow instantly. No hiring lag, no manual bottlenecks, just high-performance output ready when you are."
             },
             {
               icon: <ChevronsRight className="w-5 h-5 text-primary" />,
-              title: "Fast & Reliable",
-              text: "Premium designs, delivered with speed and precision to keep your brand ahead of the curve."
+              title: "Efficient & Precise",
+              text: "Premium creative work delivered with speed and accuracy, supported by intelligent systems that keep your brand ahead of the curve."
             }
           ].map(({ icon, title, text }, i) => (
-            <div
+            <motion.div
               key={i}
-              className="group relative bg-neutral/[0.03] border border-neutral/10 rounded-[2.5rem] p-10 transition-all duration-500 hover:bg-neutral/[0.05] hover:border-primary/20"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ ...fluidTransition, delay: i * 0.1 }}
+              whileHover={{ y: -5, backgroundColor: "rgba(255, 255, 255, 0.05)" }} 
+              className="group relative bg-neutral/[0.03] border border-neutral/10 rounded-[2.5rem] p-10"
             >
-              <div className="bg-background border border-neutral/10 w-12 h-12 rounded-2xl flex items-center justify-center mb-8 shadow-xl group-hover:border-primary/50 transition-colors">
+              <div className="bg-background border border-neutral/10 w-12 h-12 rounded-2xl flex items-center justify-center mb-8 shadow-xl">
                 {icon}
               </div>
               <h4 className="text-xl font-bold mb-4 tracking-tight">{title}</h4>
               <p className="text-neutral/50 text-sm leading-relaxed font-light">
                 {text}
               </p>
-            </div>
+            </motion.div>
           ))}
         </div>
 
-        {/* --- FEATURE SECTION (Video + Info) --- */}
+        {/* --- FEATURE SECTION --- */}
         <div className="grid lg:grid-cols-2 gap-16 items-center">
-          {/* Cinematic Video Box */}
-          <div 
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={fluidTransition}
             onClick={() => setOpen(true)}
             className="group relative aspect-video lg:aspect-square xl:aspect-video rounded-[2.5rem] overflow-hidden cursor-pointer border border-neutral/10 shadow-2xl"
           >
@@ -79,61 +100,67 @@ const WhoWeAre = () => {
               muted
               loop
               playsInline
-              className="w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"
+              className="w-full h-full object-cover"
               src="/WhoWeAre.mp4" 
             />
-            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors" />
+            <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-700" />
             
-            {/* Play Trigger */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-background/80 backdrop-blur-xl p-6 rounded-full border border-white/10 scale-90 group-hover:scale-100 transition-all duration-500 shadow-2xl">
+              <div className="bg-background/80 backdrop-blur-xl p-6 rounded-full border border-white/10 shadow-2xl">
                 <svg className="w-8 h-8 translate-x-0.5" viewBox="0 0 100 100" fill="none">
                   <path d="M40 30L75 50L40 70V30Z" fill="#30D5C8" />
                 </svg>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Text Block */}
-          <div className="space-y-8">
+          <motion.div 
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ ...fluidTransition, delay: 0.1 }}
+            className="space-y-8"
+          >
             <h2 className="text-4xl md:text-5xl font-bold tracking-tighter leading-tight">
-              Your Go-To Agency for Powerful Visuals
+              Your Partner for Powerful Automated Creativity
             </h2>
             <p className="text-neutral/60 text-lg font-light leading-relaxed">
-              At Zi Creates, we’re not just a vendor — we’re an extension of your creative team. We work side-by-side with you to ensure every project is exactly what your brand needs to scale.
+              We are more than a creative agency we design intelligent brand systems that 
+              combine stunning visuals, strategic thinking, and AI powered automation 
+              giving your brand the edge it needs to grow and thrive.
             </p>
             <div className="pt-4">
               <CTAButton text="Explore our work" onClick={() => window.location.href='/portfolio'} />
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
 
-      {/* --- PREMIUM VIDEO MODAL --- */}
-      {isOpen && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 md:p-12">
-          <div 
-            className="absolute inset-0 bg-background/95 backdrop-blur-2xl animate-in fade-in duration-500" 
-            onClick={() => setOpen(false)} 
-          />
-          <div className="relative w-full max-w-[1100px] aspect-video animate-in zoom-in-95 duration-500 shadow-[0_0_100px_rgba(48,213,200,0.1)]">
-            <div className="w-full h-full rounded-[2rem] md:rounded-[2.5rem] overflow-hidden border border-neutral/10 bg-black">
-              <video
-                src="/WhoWeAre.mp4"
-                autoPlay
-                controls
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <button
-              className="absolute -top-14 right-4 text-neutral/40 hover:text-primary transition-colors text-4xl"
-              onClick={() => setOpen(false)}
+      <AnimatePresence>
+        {isOpen && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-background/95 backdrop-blur-2xl" 
+              onClick={() => setOpen(false)} 
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.4, ease: "circOut" }}
+              className="relative w-full max-w-[1100px] aspect-video"
             >
-              ✕
-            </button>
+              <div className="w-full h-full rounded-[2rem] overflow-hidden border border-neutral/10 bg-black">
+                <video src="/WhoWeAre.mp4" autoPlay controls className="w-full h-full object-contain" />
+              </div>
+              <button className="absolute -top-14 right-4 text-neutral/40 text-4xl" onClick={() => setOpen(false)}>✕</button>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </section>
   );
 };

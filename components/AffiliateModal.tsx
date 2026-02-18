@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import CTAButton from "./CTAButton";
 
 interface PartnerAffiliateModalProps {
@@ -8,112 +9,139 @@ interface PartnerAffiliateModalProps {
   onClose: () => void;
 }
 
-const HEADER_HEIGHT = 120; // px
+// 💫 High-End Spring Motion
+const fluidTransition = {
+  type: "spring" as const,
+  damping: 30,
+  stiffness: 200,
+};
 
 const PartnerAffiliateModal = ({ isOpen, onClose }: PartnerAffiliateModalProps) => {
-  if (!isOpen) return null;
-
   const handlePartnerClick = () => {
     window.location.href = "mailto:partners@zicreates.com";
   };
 
   const benefits = [
-    { title: "Earn Commissions", desc: "Competitive referral rewards for every client you bring in." },
-    { title: "Grow Your Network", desc: "Expand your service offerings by partnering with a trusted agency." },
-    { title: "Exclusive Resources", desc: "Access to marketing materials, training, and dedicated support." },
-    { title: "Simple Payouts", desc: "Transparent tracking and reliable payouts so you can focus on growth." },
+    { title: "Recurring Revenue", desc: "Access competitive commission structures for every enterprise client you integrate." },
+    { title: "Ecosystem Growth", desc: "Enhance your professional offerings by aligning with our creative engineering systems." },
+    { title: "Strategic Resources", desc: "Utilize elite marketing assets and direct engineering support for your referrals." },
+    { title: "Seamless Payouts", desc: "Transparent tracking and reliable settlement so you can focus on scaling your network." },
   ];
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-background/80 backdrop-blur-md"
-        onClick={onClose}
-      />
-
-      {/* Modal Container */}
-      <div className="relative w-full max-w-4xl max-h-[90vh] rounded-[2rem] bg-background border border-neutral/10 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
-
-        {/* 🔒 FIXED HEADER */}
-        <div
-          className="absolute top-0 left-0 right-0 z-30 bg-background border-b border-neutral/10 px-6 md:px-12 pt-6 pb-5 flex items-start justify-between"
-          style={{ height: HEADER_HEIGHT }}
-        >
-          <div>
-            <span className="uppercase tracking-widest text-xs font-bold text-primary block mb-2">
-              Collaboration
-            </span>
-            <h2 className="text-[24px] md:text-[36px] font-bold leading-tight">
-              Partner & <span className="text-primary">Affiliate Program</span>
-            </h2>
-          </div>
-
-          <button
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 md:p-8">
+          {/* --- BACKDROP --- */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             onClick={onClose}
-            className="text-neutral/50 hover:text-primary transition-colors text-2xl leading-none"
-            aria-label="Close Modal"
+            className="absolute inset-0 bg-background/60 backdrop-blur-xl"
+          />
+
+          {/* --- MODAL CONTAINER --- */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={fluidTransition}
+            className="relative w-full max-w-5xl max-h-[90vh] rounded-[2.5rem] bg-background border border-neutral/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col"
           >
-            ✕
-          </button>
-        </div>
-
-        {/* 📜 SCROLLABLE BODY */}
-        <div
-          className="overflow-y-auto px-6 md:px-12 pb-16"
-          style={{
-            paddingTop: HEADER_HEIGHT + 24,
-            maxHeight: "90vh",
-          }}
-        >
-          <p className="text-lg text-neutral/60 font-light max-w-2xl">
-            At Zi Creates, we reward individuals and businesses who share our passion
-            for exceptional branding and digital growth.
-          </p>
-
-          {/* Benefits */}
-          <div className="grid sm:grid-cols-2 gap-8 my-12">
-            {benefits.map((benefit, i) => (
-              <div
-                key={i}
-                className="p-6 rounded-2xl bg-neutral/5 border border-neutral/5 hover:border-primary/20 transition-all"
-              >
-                <h3 className="text-lg font-bold mb-2 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                  {benefit.title}
-                </h3>
-                <p className="text-neutral/60 text-sm font-light leading-relaxed">
-                  {benefit.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* Who is this for */}
-          <div className="bg-neutral/5 p-8 rounded-2xl mb-12 border border-neutral/5">
-            <h3 className="text-xl font-bold mb-6">Who is this for?</h3>
-            <div className="flex flex-wrap gap-3">
-              {["Freelancers", "Consultants", "Marketing Agencies", "Influencers", "Business Coaches"].map((tag) => (
-                <span
-                  key={tag}
-                  className="px-4 py-2 rounded-full border border-neutral/10 text-sm font-light bg-background"
-                >
-                  {tag}
+            
+            {/* 🔒 HEADER */}
+            <div className="flex items-start justify-between p-8 md:p-12 border-b border-neutral/5">
+              <div className="space-y-2">
+                <span className="uppercase tracking-[0.4em] text-[10px] font-bold text-primary block">
+                  Partnerships
                 </span>
-              ))}
-            </div>
-          </div>
+                <h2 className="text-3xl md:text-5xl font-bold tracking-tighter leading-tight">
+                  Strategic <span className="text-neutral/20 italic font-serif font-light">Partner Network</span>
+                </h2>
+              </div>
 
-          {/* Footer CTA */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8 pt-8 border-t border-neutral/10">
-            <p className="text-neutral/70 font-light text-center md:text-left">
-              Ready to grow with us? Reach out to start your partnership.
-            </p>
-            <CTAButton text="Become a Partner" onClick={handlePartnerClick} />
-          </div>
+              <motion.button
+                whileHover={{ rotate: 90, scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={onClose}
+                className="w-12 h-12 flex items-center justify-center rounded-full bg-neutral/5 hover:bg-primary hover:text-background transition-colors"
+                aria-label="Close Modal"
+              >
+                ✕
+              </motion.button>
+            </div>
+
+            {/* 📜 SCROLLABLE BODY */}
+            <div className="overflow-y-auto custom-scrollbar flex-1 p-8 md:p-12 pt-6">
+              <motion.p 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-xl text-neutral/40 font-light max-w-2xl leading-relaxed"
+              >
+                At Zi Creates, we reward leaders who recognize the 
+                power of high-performance branding and systemic digital growth.
+              </motion.p>
+
+              {/* Benefits Grid */}
+              <motion.div 
+                initial="initial"
+                animate="animate"
+                variants={{
+                  animate: { transition: { staggerChildren: 0.05 } }
+                }}
+                className="grid md:grid-cols-2 gap-6 my-16"
+              >
+                {benefits.map((benefit, i) => (
+                  <motion.div
+                    key={i}
+                    variants={{
+                      initial: { opacity: 0, x: -10 },
+                      animate: { opacity: 1, x: 0 }
+                    }}
+                    whileHover={{ y: -5, backgroundColor: "rgba(255, 255, 255, 0.02)", borderColor: "rgba(48, 213, 200, 0.3)" }}
+                    className="p-8 rounded-[2rem] border border-neutral/5 bg-neutral/[0.01] transition-all duration-300 group"
+                  >
+                    <div className="w-2 h-2 rounded-full bg-primary mb-6 group-hover:scale-150 transition-transform" />
+                    <h3 className="text-xl font-bold mb-3 tracking-tight">
+                      {benefit.title}
+                    </h3>
+                    <p className="text-neutral/40 text-sm font-light leading-relaxed group-hover:text-neutral/70 transition-colors">
+                      {benefit.desc}
+                    </p>
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              {/* Profiles Section */}
+              <div className="bg-neutral/[0.02] p-10 rounded-[2.5rem] border border-neutral/5 mb-12">
+                <h3 className="text-[10px] uppercase tracking-[0.3em] font-bold text-neutral/20 mb-8">Preferred Profiles //</h3>
+                <div className="flex flex-wrap gap-4">
+                  {["Strategic Consultants", "Marketing Agencies", "Enterprise Coaches", "Industry Leaders", "Solution Architects"].map((tag) => (
+                    <motion.span
+                      key={tag}
+                      whileHover={{ scale: 1.05, borderColor: "rgba(255, 255, 255, 0.2)" }}
+                      className="px-5 py-2.5 rounded-full border border-neutral/10 text-xs font-bold uppercase tracking-widest bg-background transition-colors"
+                    >
+                      {tag}
+                    </motion.span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* 🏷️ FOOTER CTA */}
+            <div className="p-8 md:p-12 bg-neutral/[0.02] border-t border-neutral/5 flex flex-col md:flex-row items-center justify-between gap-8">
+              <p className="text-neutral/50 font-light text-center md:text-left max-w-sm text-sm">
+                Ready to integrate our creative engineering into your business network?
+              </p>
+              <CTAButton text="Become a Partner" onClick={handlePartnerClick} />
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 };
 

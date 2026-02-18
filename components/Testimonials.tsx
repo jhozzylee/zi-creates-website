@@ -4,6 +4,7 @@ import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay, EffectFade, Navigation } from "swiper/modules";
 import { Quote } from "lucide-react";
+import { motion } from "framer-motion";
 
 import "swiper/css";
 import "swiper/css/pagination";
@@ -18,28 +19,57 @@ interface TestimonialCardProps {
   logo: string;
 }
 
+const fluidTransition = {
+  type: "spring" as const,
+  damping: 35,
+  stiffness: 200,
+  mass: 1,
+};
+
 const TestimonialCard = ({ photo, quote, name, title, logo }: TestimonialCardProps) => (
   <div className="w-full px-6 py-12">
     <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-24">
       {/* Editorial Image Treatment */}
-      <div className="relative shrink-0">
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
+        whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+        transition={fluidTransition}
+        className="relative shrink-0"
+      >
         <div className="absolute -inset-4 border border-neutral/5 rounded-[3rem] pointer-events-none" />
-        <img
+        <motion.img
+          whileHover={{ scale: 1.02 }}
           src={photo}
           alt={name}
-          className="w-[280px] h-[360px] md:w-[320px] md:h-[420px] object-cover rounded-[2.5rem] transition-all duration-700 shadow-2xl"
+          className="w-[280px] h-[360px] md:w-[320px] md:h-[420px] object-cover rounded-[2.5rem] shadow-2xl z-10 relative"
         />
-      </div>
+      </motion.div>
 
       <div className="max-w-[580px] flex flex-col items-center md:items-start text-center md:text-left">
-        <Quote className="text-primary/20 w-12 h-12 mb-6" strokeWidth={1} />
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <Quote className="text-primary/20 w-12 h-12 mb-6" strokeWidth={1} />
+        </motion.div>
         
         {/* Large, Airy Quote Typography */}
-        <div className="text-xl md:text-3xl font-light leading-[1.4] tracking-tight text-neutral/90 mb-10 italic">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ ...fluidTransition, delay: 0.3 }}
+          className="text-xl md:text-3xl font-light leading-[1.4] tracking-tight text-neutral/90 mb-10 italic"
+        >
           {quote}
-        </div>
+        </motion.div>
 
-        <div className="flex flex-col md:flex-row items-center gap-6 md:gap-12 pt-8 border-t border-neutral/5 w-full md:w-auto">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="flex flex-col md:flex-row items-center gap-6 md:gap-12 pt-8 border-t border-neutral/5 w-full md:w-auto"
+        >
           <div className="space-y-1">
             <p className="text-lg font-bold tracking-tight">{name}</p>
             <p className="text-[10px] uppercase tracking-[0.2em] text-neutral/40 font-bold">{title}</p>
@@ -49,7 +79,7 @@ const TestimonialCard = ({ photo, quote, name, title, logo }: TestimonialCardPro
             alt="Company Logo" 
             className="h-6 md:h-8 opacity-40 brightness-200" 
           />
-        </div>
+        </motion.div>
       </div>
     </div>
   </div>
@@ -97,13 +127,19 @@ const Testimonials = () => {
       <div className="max-w-[1280px] mx-auto">
         
         {/* Section Header - Editorial Style */}
-        <div className="mb-16 md:mb-24 text-center md:text-left">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={fluidTransition}
+          className="mb-16 md:mb-24 text-center md:text-left"
+        >
           <span className="text-primary text-[11px] font-bold uppercase tracking-[0.5em] block mb-4">Social Proof</span>
           <h2 className="text-4xl md:text-6xl font-bold tracking-tighter">
             Stories that make <br />
             <span className="text-neutral/20 italic font-light font-serif">us proud</span>
           </h2>
-        </div>
+        </motion.div>
 
         <div className="relative testimonials-swiper-container">
           <Swiper
@@ -112,7 +148,7 @@ const Testimonials = () => {
             autoplay={{ delay: 6000, disableOnInteraction: false }}
             effect="fade"
             fadeEffect={{ crossFade: true }}
-            navigation={false} // Clean up UI, use pagination only
+            navigation={false}
             pagination={{
               clickable: true,
             }}

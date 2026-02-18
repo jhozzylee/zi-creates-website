@@ -5,6 +5,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import { useMediaQuery } from "react-responsive";
 import { Check, ArrowRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 import "swiper/css";
 import "swiper/css/pagination";
@@ -19,9 +20,31 @@ interface Plan {
   isPopular?: boolean;
 }
 
-const PlanCard = ({ title, price, features, onClick, isPopular }: any) => {
+// Fixed spring configuration for build stability and smoothness
+const fluidTransition = {
+  type: "spring" as const,
+  damping: 35,
+  stiffness: 200,
+  mass: 1,
+};
+
+const PlanCard = ({ title, price, features, onClick, isPopular, index }: any) => {
   return (
-    <div className="relative w-full h-[620px] group bg-neutral/[0.03] p-10 rounded-[2.5rem] border border-neutral/10 transition-all duration-500 hover:bg-neutral/[0.06] hover:border-primary/40 flex flex-col justify-between overflow-hidden">
+    <motion.div 
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ ...fluidTransition, delay: index * 0.1 }}
+      /* Moving hover logic to Framer Motion fixes the "twitching" 
+         by preventing CSS and JS from fighting over the same properties.
+      */
+      whileHover={{ 
+        y: -12, 
+        backgroundColor: "rgba(255, 255, 255, 0.06)",
+        borderColor: "rgba(48, 213, 200, 0.4)" 
+      }}
+      className="relative w-full h-[620px] group bg-neutral/[0.03] p-10 rounded-[2.5rem] border border-neutral/10 flex flex-col justify-between overflow-hidden cursor-default"
+    >
       {/* Premium Badge */}
       {isPopular && (
         <div className="absolute top-6 right-10">
@@ -39,7 +62,7 @@ const PlanCard = ({ title, price, features, onClick, isPopular }: any) => {
         
         <ul className="space-y-4">
           {features.map((item: string, idx: number) => (
-            <li key={idx} className="flex items-start gap-3 text-sm font-light text-neutral/50 group-hover:text-neutral/80 transition-colors">
+            <li key={idx} className="flex items-start gap-3 text-sm font-light text-neutral/50 group-hover:text-neutral/80 transition-colors duration-300">
               <Check className="w-4 h-4 text-primary shrink-0 mt-0.5" />
               {item}
             </li>
@@ -56,15 +79,15 @@ const PlanCard = ({ title, price, features, onClick, isPopular }: any) => {
         
         <button
           onClick={onClick}
-          className="group relative flex justify-between items-center w-full bg-background border border-neutral/10 rounded-full px-8 py-4 transition-all duration-300 hover:border-primary hover:shadow-[0_0_30px_rgba(48,213,200,0.1)]"
+          className="group/btn relative flex justify-between items-center w-full bg-background border border-neutral/10 rounded-full px-8 py-4 transition-all duration-300 hover:border-primary hover:shadow-[0_0_30px_rgba(48,213,200,0.1)]"
         >
-          <span className="text-xs uppercase tracking-[0.2em] font-bold group-hover:text-primary transition-colors">
+          <span className="text-xs uppercase tracking-[0.2em] font-bold group-hover/btn:text-primary transition-colors">
             Get Started
           </span>
-          <ArrowRight className="w-4 h-4 text-neutral/40 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+          <ArrowRight className="w-4 h-4 text-neutral/40 group-hover/btn:text-primary group-hover/btn:translate-x-1 transition-all" />
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -77,7 +100,6 @@ const PricingSection = () => {
     setMounted(true);
   }, []);
 
-  // Preserving your original responsiveness logic
   const isMobile = useMediaQuery({ maxWidth: 639 });
 
   const openPaymentModal = (plan: Plan) => {
@@ -88,44 +110,43 @@ const PricingSection = () => {
   const plans: Plan[] = [
     {
       title: "Essentials Plan",
-      price: "$599/month",
+      price: "$799/month",
       features: [
-        "Brand Essentials",
-        "Basic Website Development",
-        "Social Media Graphics",
-        "1 Revision per Project",
-        "Motion Graphics/Animated Posts",
-        "Digital Marketing",
+        "Brand Identity Core",
+        "Smart Website Development",
+        "Automated Social Assets",
+        "Standard Refinement Cycles",
+        "Motion Graphics and Animated Posts",
+        "Targeted Digital Marketing",
       ],
       planId: "PLN_224499",
     },
     {
       title: "Growth Plan",
-      price: "$1,299/month",
+      price: "$1,599/month",
       isPopular: true,
       features: [
-        "Full Brand Identity",
+        "Full Brand Ecosystem",
         "Custom Website Development",
-        "Social Media & Ad Graphics",
-        "Motion Graphics/Animated Posts",
-        "2 Revisions per Project",
-        "Digital Marketing",
-        "Dedicated Account Manager",
+        "High Volume Ad Graphics",
+        "Advanced Optimization Rounds",
+        "Video and Motion Pipelines",
+        "Data Driven Digital Marketing",
+        "Dedicated Systems Manager",
       ],
       planId: "PLN_224573",
     },
     {
       title: "Premium Plan",
-      price: "$2,499/month",
+      price: "$2,999/month",
       features: [
         "Complete Brand Strategy",
-        "Advanced Website Development",
-        "AI Automation",
-        "Social Media & Ad Graphics",
-        "Video & Motion Graphics",
-        "3 Revisions per Project",
-        "Dedicated Account Manager",
-        "SEO, GEO & Marketing",
+        "Advanced Web Ecosystems",
+        "Full Scale AI Automation & Custom Agents",
+        "Continuous System Evolution",
+        "High End Video Production",
+        "Dedicated Systems Manager",
+        "Full SEO, GEO and Marketing Automation",
       ],
       planId: "PLN_2245439",
     },
@@ -134,24 +155,28 @@ const PricingSection = () => {
   if (!mounted) return null;
 
   return (
-    <section id="plans" className="bg-background text-neutral py-2 px-6 scroll-mt-20">
+    <section id="plans" className="bg-background text-neutral py-24 px-6 scroll-mt-20 overflow-hidden">
       <div className="max-w-[1280px] mx-auto">
-        <div className="mb-20">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={fluidTransition}
+          className="mb-20"
+        >
           <span className="text-primary text-[11px] font-bold uppercase tracking-[0.4em] block mb-4">Pricing Models</span>
           <h2 className="text-4xl md:text-6xl font-bold tracking-tighter">
              Adaptive <span className="text-neutral/20 italic font-light">Plans</span>
           </h2>
-        </div>
+        </motion.div>
 
         {isMobile ? (
-          // Mobile: Vertical Stack (Original Logic)
           <div className="flex flex-col gap-8 mb-8">
             {plans.map((plan, index) => (
-              <PlanCard key={index} {...plan} onClick={() => openPaymentModal(plan)} />
+              <PlanCard key={index} {...plan} index={index} onClick={() => openPaymentModal(plan)} />
             ))}
           </div>
         ) : (
-          // Tablet/Desktop: Swiper (Original Logic)
           <div className="mb-12 pricing-pagination">
             <Swiper
               spaceBetween={24}
@@ -161,27 +186,30 @@ const PricingSection = () => {
                 640: { slidesPerView: 1.9 },
                 1024: { slidesPerView: 3 },
               }}
+              className="!overflow-visible"
             >
               {plans.map((plan, index) => (
-                <SwiperSlide key={index}>
-                  <PlanCard {...plan} onClick={() => openPaymentModal(plan)} />
+                <SwiperSlide key={index} className="!h-auto">
+                  <PlanCard {...plan} index={index} onClick={() => openPaymentModal(plan)} />
                 </SwiperSlide>
               ))}
             </Swiper>
           </div>
         )}
 
-        {selectedPlan && (
-          <PaymentModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            selectedPlan={{
-              title: selectedPlan.title,
-              price: parseFloat(selectedPlan.price.replace(/[^0-9.]/g, "")),
-              planId: selectedPlan.planId,
-            }}
-          />
-        )}
+        <AnimatePresence>
+          {isModalOpen && selectedPlan && (
+            <PaymentModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              selectedPlan={{
+                title: selectedPlan.title,
+                price: parseFloat(selectedPlan.price.replace(/[^0-9.]/g, "")),
+                planId: selectedPlan.planId,
+              }}
+            />
+          )}
+        </AnimatePresence>
       </div>
 
       <style jsx global>{`
