@@ -43,12 +43,12 @@ const ptComponents = {
   },
   listItem: {
     bullet: ({ children }: any) => (
-      <li className="text-lg md:text-xl font-light leading-relaxed pl-2">
+      <li className="text-lg md:text-xl font-light leading-relaxed pl-2 text-justify">
         {children}
       </li>
     ),
     number: ({ children }: any) => (
-      <li className="text-lg md:text-xl font-light leading-relaxed pl-2">
+      <li className="text-lg md:text-xl font-light leading-relaxed pl-2 text-justify">
         {children}
       </li>
     ),
@@ -65,12 +65,12 @@ const ptComponents = {
       </h3>
     ),
     normal: ({ children }: any) => (
-      <p className="text-neutral/60 leading-relaxed text-lg md:text-xl font-light mb-8">
+      <p className="text-neutral/60 leading-relaxed text-lg md:text-xl font-light mb-8 text-justify">
         {children}
       </p>
     ),
     blockquote: ({ children }: any) => (
-      <blockquote className="border-l-2 border-primary pl-8 my-12 italic text-2xl md:text-3xl font-light text-neutral/90 tracking-tight">
+      <blockquote className="border-l-2 border-primary pl-8 my-12 italic text-2xl md:text-3xl font-light text-neutral/90 tracking-tight text-justify">
         {children}
       </blockquote>
     ),
@@ -205,7 +205,8 @@ export default function MainBlog({ post }: { post: any }) {
 
         {/* The Body Content */}
         <div className="max-w-[760px] mx-auto">
-          <div className="prose prose-invert prose-neutral max-w-none">
+          {/* Applied 'hyphens-auto' here to prevent weird spacing in justified text */}
+          <div className="prose prose-invert prose-neutral max-w-none hyphens-auto">
             <PortableText value={post.body} components={ptComponents} />
           </div>
 
