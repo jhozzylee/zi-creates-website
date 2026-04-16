@@ -4,8 +4,12 @@ const nextConfig: NextConfig = {
   transpilePackages: ["ai"],
 
   images: {
-    domains: ["media.istockphoto.com"],
     remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "media.istockphoto.com",
+        pathname: "/**",
+      },
       {
         protocol: "https",
         hostname: "images.unsplash.com",

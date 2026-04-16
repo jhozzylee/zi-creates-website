@@ -3,6 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { client } from "@/sanity/lib/client";
 
+export const revalidate = 60;
+
 // Keep your working query
 const GET_POSTS_QUERY = `*[_type == "blog"] | order(publishedAt desc) {
   title,

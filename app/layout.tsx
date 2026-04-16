@@ -2,6 +2,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import AIChatClient from "@/components/AIChatClient";
+import ScrollFix from "@/components/ScrollFix";
 import { Metadata } from "next";
 
 const poppins = Poppins({
@@ -48,6 +49,7 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} font-poppins antialiased bg-background text-neutral`}
       >
+        <ScrollFix /> {/* [Add this component here] */}
         <Header />
         <main>{children}</main>
 

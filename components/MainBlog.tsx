@@ -28,6 +28,31 @@ const ptComponents = {
       );
     },
   },
+  // --- LIST STYLING ---
+  list: {
+    bullet: ({ children }: any) => (
+      <ul className="list-disc ml-8 md:ml-12 mb-10 space-y-4 text-neutral/60">
+        {children}
+      </ul>
+    ),
+    number: ({ children }: any) => (
+      <ol className="list-decimal ml-8 md:ml-12 mb-10 space-y-4 text-neutral/60">
+        {children}
+      </ol>
+    ),
+  },
+  listItem: {
+    bullet: ({ children }: any) => (
+      <li className="text-lg md:text-xl font-light leading-relaxed pl-2">
+        {children}
+      </li>
+    ),
+    number: ({ children }: any) => (
+      <li className="text-lg md:text-xl font-light leading-relaxed pl-2">
+        {children}
+      </li>
+    ),
+  },
   block: {
     h2: ({ children }: any) => (
       <h2 className="text-3xl md:text-5xl font-bold tracking-tighter mt-20 mb-8 text-neutral">
@@ -73,6 +98,26 @@ export default function MainBlog({ post }: { post: any }) {
     restDelta: 0.001
   });
 
+  // --- SHARE FUNCTIONALITY ---
+  const handleShare = async () => {
+    const shareData = {
+      title: post.title,
+      text: `Check out this post: ${post.title}`,
+      url: typeof window !== "undefined" ? window.location.href : "",
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        alert("Link copied to clipboard!");
+      }
+    } catch (err) {
+      console.error("Error sharing:", err);
+    }
+  };
+
   return (
     <article className="bg-background text-neutral pt-40 pb-32 px-6 relative">
       {/* Reading Progress Indicator */}
@@ -88,7 +133,7 @@ export default function MainBlog({ post }: { post: any }) {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <Link href="/blog" className="group inline-flex items-center text-[10px] uppercase tracking-[0.4em] text-neutral/40 hover:text-primary transition-all mb-16">
+          <Link href="/blogs" className="group inline-flex items-center text-[10px] uppercase tracking-[0.4em] text-neutral/40 hover:text-primary transition-all mb-16">
             <span className="mr-3 group-hover:-translate-x-2 transition-transform duration-300">←</span> 
             Back to Journal
           </Link>
@@ -164,14 +209,33 @@ export default function MainBlog({ post }: { post: any }) {
             <PortableText value={post.body} components={ptComponents} />
           </div>
 
-          {/* Bottom Divider */}
+          {/* Bottom Divider & Share */}
           <div className="mt-32 pt-12 border-t border-neutral/5 flex justify-between items-center">
-             <div className="text-[10px] uppercase tracking-widest text-neutral/20 font-bold">
+             <div className="text-[10px] uppercase tracking-widest text-neutral/60 font-bold">
                © Zi Creates Archive
              </div>
              <div className="flex gap-6">
-                {/* Share Buttons Placeholder */}
-                <button className="text-neutral/20 hover:text-primary transition-colors text-[10px] uppercase tracking-widest font-bold">Share</button>
+                <button 
+                  onClick={handleShare}
+                  className="text-neutral/60 hover:text-primary transition-all text-[10px] uppercase tracking-widest font-bold flex items-center gap-2 group"
+                >
+                  <span className="group-hover:mr-1 transition-all">Share</span>
+                  <svg 
+                    width="12" 
+                    height="12" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2.5" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                    className="group-hover:-translate-y-0.5 transition-transform"
+                  >
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                    <polyline points="16 6 12 2 8 6" />
+                    <line x1="12" y1="2" x2="12" y2="15" />
+                  </svg>
+                </button>
              </div>
           </div>
         </div>
