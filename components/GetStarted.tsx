@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion"; // Added
+import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/lib/supabaseClient";
 import CTAButton from "./CTAButton";
 
-interface GetStartedProps {
+interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
@@ -16,20 +17,11 @@ const fluidTransition = {
   mass: 1,
 };
 
-const GetStarted = ({ isOpen, onClose }: GetStartedProps) => {
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    company: "",
-    contact: "",
-    source: "",
-    budget: "",
-    note: "",
-  });
+const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
-  const [submitted, setSubmitted] = useState(false);
-
-  // Prevent background scroll when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -39,69 +31,43 @@ const GetStarted = ({ isOpen, onClose }: GetStartedProps) => {
     return () => { document.body.style.overflow = "unset"; };
   }, [isOpen]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-
-    fetch("https://ipapi.co/json/")
-      .then((res) => res.json())
-      .then((data) => {
-        setFormData((prev) => ({
-          ...prev,
-          contact: data?.country_calling_code || "+1",
-        }));
-      })
-      .catch(() => {
-        setFormData((prev) => ({ ...prev, contact: "+1" }));
-      });
-  }, [isOpen]);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!formData.note.trim()) return;
+    if (!email) return;
+    setLoading(true);
+    setMessage("");
 
-    try {
-      const response = await fetch("https://sheetdb.io/api/v1/44eyixm95etfh", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data: formData }),
-      });
+    // Pointing to the callback route for the server-side handshake
+    const redirectUrl = typeof window !== "undefined"
+      ? `${window.location.origin}/auth/callback`
+      : "";
 
-      if (response.ok) {
-        setSubmitted(true);
-        setTimeout(() => {
-          setSubmitted(false);
-          onClose();
-        }, 3000);
-      } else {
-        alert("❌ Failed to initiate session. Try again.");
-      }
-    } catch (error) {
-      console.error("❌ Error:", error);
-      alert("❌ Failed to initiate session. Try again.");
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: redirectUrl },
+    });
+
+    if (error) {
+      setMessage(`Error: ${error.message}`);
+    } else {
+      setMessage("Verification link sent. Check your inbox to enter.");
     }
+
+    setLoading(false);
   };
 
   return (
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-background/80 backdrop-blur-xl"
+            className="absolute inset-0 bg-[#050505]/80 backdrop-blur-xl"
             onClick={onClose}
           />
 
-          {/* Modal Container */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.9, y: 40 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -109,112 +75,72 @@ const GetStarted = ({ isOpen, onClose }: GetStartedProps) => {
             transition={fluidTransition}
             className="relative bg-background border border-neutral/10 text-neutral w-full max-w-5xl max-h-[90vh] rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden"
           >
+            <button
+              onClick={onClose}
+              className="absolute top-8 right-8 text-white/20 hover:text-[#30D5C8] transition-colors text-2xl z-20"
+            >
+              ✕
+            </button>
 
-            {/* ================= STICKY HEADER ================= */}
-            <div className="sticky top-0 z-10 bg-background/90 backdrop-blur-xl border-b border-neutral/10 px-8 md:px-16 pt-10 pb-8 rounded-t-[2.5rem]">
-              <button
-                onClick={onClose}
-                className="absolute top-8 right-8 text-neutral/40 hover:text-primary transition-colors text-2xl z-20"
-              >
-                ✕
-              </button>
+            <div className="flex flex-col items-center justify-center px-8 md:px-16 pt-20 pb-20">
+              
+              <div className="text-center mb-16 max-w-[340px]">
+                <div className="flex items-center justify-center gap-3 mb-6">
+                   <span className="w-1.5 h-1.5 rounded-full bg-[#30D5C8] shadow-[0_0_8px_#30D5C8]" />
+                   <span className="uppercase tracking-[0.5em] text-[10px] font-bold text-white/30">Executive Portal</span>
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
+                  Welcome<span className="text-[#30D5C8]">.</span>
+                </h2>
+                <p className="text-white/40 text-sm font-light leading-relaxed">
+                  Enter your credentials to receive a secure access link to your project dashboard.
+                </p>
+              </div>
 
-              <span className="uppercase tracking-[0.2em] text-xs font-bold text-primary block mb-4">
-                Project Intake
-              </span>
-              <h2 className="text-[32px] md:text-[48px] font-bold leading-tight">
-                Ready to <span className="text-primary">engineer growth?</span>
-              </h2>
-              <p className="text-neutral/60 font-light mt-2">
-                Tell us about your brand goals and let’s architect a high performance system.
-              </p>
-            </div>
-
-            {/* ================= SCROLLABLE BODY ================= */}
-            <div className="overflow-y-auto px-8 md:px-16 pb-16 pt-10 no-scrollbar">
-              {submitted ? (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="py-20 text-center space-y-4"
-                >
-                  <div className="text-6xl mb-6">✅</div>
-                  <h3 className="text-2xl font-bold">Inquiry Received</h3>
-                  <p className="text-neutral/60 font-light">
-                    Our team will review your project profile and reach out within 24 hours.
-                  </p>
-                </motion.div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-8">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
-                    <InputField
-                      label="Full Name *"
-                      name="fullName"
-                      placeholder="John Doe"
-                      value={formData.fullName}
-                      onChange={handleChange}
-                      required
-                    />
-                    <InputField
-                      label="Email *"
-                      name="email"
-                      type="email"
-                      placeholder="john@company.com"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                    />
-                    <InputField
-                      label="Phone Number"
-                      name="contact"
-                      placeholder="+1 (234) 567 8901"
-                      value={formData.contact}
-                      onChange={handleChange}
-                      required
-                    />
-                    <InputField
-                      label="Company Name"
-                      name="company"
-                      placeholder="Enterprise or Startup Name"
-                      value={formData.company}
-                      onChange={handleChange}
-                    />
-                    <SelectField
-                      label="Discovery Source *"
-                      name="source"
-                      options={["Social Media", "Referral", "Partner Network", "Search", "Other"]}
-                      value={formData.source}
-                      onChange={handleChange}
-                      required
-                    />
-                    <SelectField
-                      label="Monthly Investment Budget"
-                      name="budget"
-                      options={["$800 – $1,500", "$1,500 – $3,000", "$3,000 – $10,000", "Above $10,000"]}
-                      value={formData.budget}
-                      onChange={handleChange}
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-3">
-                    <label className="text-sm font-bold uppercase tracking-wider text-neutral/50">
-                      Project Brief & Objectives *
+              <div className="w-full max-w-[380px]">
+                <form onSubmit={handleLogin} className="space-y-12">
+                  <div className="relative group">
+                    <label className="text-[10px] uppercase tracking-[0.4em] font-bold text-white/20 mb-4 block group-focus-within:text-[#30D5C8] transition-colors">
+                      Email Address
                     </label>
-                    <textarea
-                      name="note"
-                      placeholder="Describe your vision and any current bottlenecks..."
-                      className="w-full p-5 rounded-2xl border border-neutral/10 bg-neutral/5 min-h-[150px] focus:border-primary/50 focus:bg-primary/5 outline-none transition-all placeholder:text-neutral/30 text-base"
-                      value={formData.note}
-                      onChange={handleChange}
+                    <input
+                      type="email"
+                      placeholder="e.g. partner@company.com"
+                      className="w-full bg-transparent border-b border-white/10 py-4 text-xl font-light tracking-tight text-white focus:outline-none focus:border-[#30D5C8] transition-all placeholder:text-white/15"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       required
+                      autoFocus
                     />
                   </div>
 
-                  <div className="pt-4 flex justify-end">
-                    <CTAButton text="Send message" />
+                  <div className="flex flex-col items-center gap-10">
+                    <CTAButton
+                      type="submit"
+                      text={loading ? "SENDING LINK..." : "REQUEST ACCESS"}
+                      disabled={loading}
+                    />
+
+                    {message && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-center bg-white/[0.03] border border-white/5 py-3 px-8 rounded-full"
+                      >
+                        <p className={`text-[11px] font-medium tracking-wide ${
+                          message.includes("Error") ? "text-red-400" : "text-[#30D5C8]"
+                        }`}>
+                          {message}
+                        </p>
+                      </motion.div>
+                    )}
                   </div>
                 </form>
-              )}
+              </div>
+
+              <div className="mt-16 opacity-10 uppercase tracking-[0.5em] text-[8px] font-bold">
+                Authorized Client Gateway
+              </div>
             </div>
           </motion.div>
         </div>
@@ -223,67 +149,4 @@ const GetStarted = ({ isOpen, onClose }: GetStartedProps) => {
   );
 };
 
-export default GetStarted;
-
-/* ================= FIELD COMPONENTS ================= */
-
-const InputField = ({
-  label,
-  name,
-  type = "text",
-  placeholder,
-  value,
-  onChange,
-  required,
-}: any) => (
-  <div className="flex flex-col gap-3">
-    <label className="text-sm font-bold uppercase tracking-wider text-neutral/50">
-      {label}
-    </label>
-    <input
-      type={type}
-      name={name}
-      placeholder={placeholder}
-      className="w-full px-5 py-4 rounded-xl border border-neutral/10 bg-neutral/5 focus:border-primary/50 focus:bg-primary/5 outline-none transition-all placeholder:text-neutral/30 text-base"
-      value={value}
-      onChange={onChange}
-      required={required}
-    />
-  </div>
-);
-
-const SelectField = ({
-  label,
-  name,
-  options,
-  value,
-  onChange,
-  required,
-}: any) => (
-  <div className="flex flex-col gap-3">
-    <label className="text-sm font-bold uppercase tracking-wider text-neutral/50">
-      {label}
-    </label>
-    <div className="relative">
-      <select
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="w-full px-5 py-4 rounded-xl border border-neutral/10 bg-neutral/5 focus:border-primary/50 focus:bg-primary/5 outline-none appearance-none cursor-pointer transition-all text-base"
-        required={required}
-      >
-        <option value="" disabled hidden>
-          Select option...
-        </option>
-        {options.map((opt: string) => (
-          <option key={opt} value={opt.toLowerCase()}>
-            {opt}
-          </option>
-        ))}
-      </select>
-      <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-neutral/30 text-xs">
-        ▼
-      </div>
-    </div>
-  </div>
-);
+export default LoginModal;
