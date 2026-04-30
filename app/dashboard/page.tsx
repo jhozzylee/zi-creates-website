@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation"; // Added for redirection
 import CTAButton from "@/components/CTAButton"; 
 
-// 💫 Zi Creates Signature Motion Config
 const fluidTransition = {
   type: "spring" as const,
   damping: 35,
@@ -24,6 +24,7 @@ const fadeInUp = {
 };
 
 export default function ClientDashboard() {
+  const router = useRouter(); // Initialize router
   const [data, setData] = useState<any>({
     profile: null,
     projects: [],
@@ -36,38 +37,46 @@ export default function ClientDashboard() {
 
   useEffect(() => {
     async function loadDashboardData() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setLoading(false);
+      // 1. Check for active session
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        console.log("No active session found, redirecting...");
+        router.push("/"); // Send them home if they aren't logged in
         return;
       }
 
-      const [profile, projects, milestones, payments, deliverables, updates] = await Promise.all([
-        supabase.from("client").select("*").eq("user_id", user.id).single(),
-        supabase.from("projects").select("*").eq("user_id", user.id),
-        supabase.from("milestones").select("*").eq("user_id", user.id),
-        supabase.from("payments").select("*").eq("user_id", user.id),
-        supabase.from("deliverables").select("*").eq("user_id", user.id),
-        supabase.from("updates")
-          .select("*")
-          .eq("user_id", user.id)
-          .order('created_at', { ascending: false })
-      ]);
+      // 2. Fetch all data in parallel using the user.id
+      try {
+        const [profile, projects, milestones, payments, deliverables, updates] = await Promise.all([
+          supabase.from("client").select("*").eq("user_id", user.id).single(),
+          supabase.from("projects").select("*").eq("user_id", user.id),
+          supabase.from("milestones").select("*").eq("user_id", user.id),
+          supabase.from("payments").select("*").eq("user_id", user.id),
+          supabase.from("deliverables").select("*").eq("user_id", user.id),
+          supabase.from("updates")
+            .select("*")
+            .eq("user_id", user.id)
+            .order('created_at', { ascending: false })
+        ]);
 
-      setData({
-        profile: profile.data,
-        projects: projects.data || [],
-        milestones: milestones.data || [],
-        payments: payments.data || [],
-        deliverables: deliverables.data || [],
-        updates: updates.data || [],
-      });
-
-      setLoading(false);
+        setData({
+          profile: profile.data,
+          projects: projects.data || [],
+          milestones: milestones.data || [],
+          payments: payments.data || [],
+          deliverables: deliverables.data || [],
+          updates: updates.data || [],
+        });
+      } catch (err) {
+        console.error("Data fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
     }
 
     loadDashboardData();
-  }, []);
+  }, [router]);
 
   const handleRenewClick = () => {
     if (data.profile?.payment_link) {
@@ -93,7 +102,7 @@ export default function ClientDashboard() {
     <div className="min-h-screen bg-[#050505] text-white pt-32 px-6 pb-24 selection:bg-[#30D5C8] selection:text-black font-sans">
       <div className="max-w-[1280px] mx-auto">
         
-        {/* ================= HEADER SECTION WITH FINANCIALS ================= */}
+        {/* HEADER SECTION */}
         <motion.header 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -118,13 +127,12 @@ export default function ClientDashboard() {
               </div>
             </div>
 
-            {/* INTEGRATED FINANCIAL STATS */}
             <div className="flex gap-12 border-l border-white/10 pl-12 h-fit hidden md:flex">
               {data.payments.slice(0, 2).map((pay: any) => (
                 <div key={pay.id}>
                   <p className="text-[9px] uppercase tracking-[0.3em] text-white/30 font-bold mb-1">Investment //</p>
                   <p className="text-3xl font-serif italic font-light">${pay.amount.toLocaleString()}</p>
-                  <p className={`text-[9px] uppercase tracking-widest font-bold mt-1 ${pay.status === 'Paid' ? 'text-[#30D5C8]' : 'text-red-400'}`}>
+                  <p className={`text-[9px] uppercase tracking-widest font-bold mt-1 ${pay.status === 'Paid' ? 'text-[#30D5C8]' : 'text-green-400'}`}>
                     {pay.status}
                   </p>
                 </div>
@@ -134,16 +142,13 @@ export default function ClientDashboard() {
         </motion.header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-          
-          {/* ================= LEFT COLUMN ================= */}
           <motion.div 
             variants={staggerContainer}
             initial="initial"
             animate="animate"
             className="lg:col-span-8 space-y-20"
           >
-
-            {/* ACTIVE SYSTEMS (PROJECTS) */}
+            {/* PROJECTS */}
             <section>
               <SectionHeader title="Active Systems" />
               {data.projects.map((project: any) => (
@@ -174,127 +179,33 @@ export default function ClientDashboard() {
                       className="bg-[#30D5C8] h-full shadow-[0_0_15px_rgba(48,213,200,0.5)]"
                     />
                   </div>
-
-                  {project.brief && (
-                    <div className="pt-8 border-t border-white/5">
-                      <h4 className="text-[10px] uppercase tracking-[0.3em] font-bold text-white/20 mb-4">Project Brief //</h4>
-                      <div className="border-l-2 border-[#30D5C8]/20 pl-6 py-2">
-                        <p className="text-base text-white/50 leading-relaxed font-light italic">"{project.brief}"</p>
-                      </div>
-                    </div>
-                  )}
                 </motion.div>
               ))}
             </section>
-
-            {/* MILESTONES */}
-            <section>
-              <SectionHeader title="Project Milestones" />
-              <div className="space-y-4">
-                {data.milestones.map((ms: any) => (
-                  <motion.div
-                    key={ms.id}
-                    variants={fadeInUp}
-                    whileHover={{ x: 10, backgroundColor: "rgba(255, 255, 255, 0.03)" }}
-                    className="flex items-center justify-between p-6 border border-white/10 bg-white/[0.01] rounded-[1.5rem] transition-all"
-                  >
-                    <div className="flex items-center gap-6">
-                      <div className={`w-2 h-2 rounded-full ${ms.status === 'Completed' ? 'bg-[#30D5C8] shadow-[0_0_10px_#30D5C8]' : 'bg-white/20'}`} />
-                      <div>
-                        <h4 className={`text-lg font-bold tracking-tight ${ms.status === 'Completed' ? 'text-white/90' : 'text-white/40'}`}>
-                          {ms.title}
-                        </h4>
-                        <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-white/20 mt-1">
-                          Due: {ms.due_date}
-                        </p>
-                      </div>
-                    </div>
-                    <span className={`text-[10px] uppercase font-bold px-4 py-1.5 rounded-full border tracking-widest ${
-                      ms.status === 'Completed' ? 'bg-[#30D5C8]/5 border-[#30D5C8]/20 text-[#30D5C8]' : 'bg-white/5 border-white/10 text-white/30'
-                    }`}>
-                      {ms.status}
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
-            </section>
-
           </motion.div>
 
-          {/* ================= RIGHT COLUMN (SIDEBAR) ================= */}
+          {/* SIDEBAR */}
           <motion.aside 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ ...fluidTransition, delay: 0.3 }}
             className="lg:col-span-4 space-y-16"
           >
-            {/* SHARED ASSETS */}
-            <section>
-              <SectionHeader title="Shared Assets" />
-              <div className="grid gap-3">
-                {data.deliverables.map((file: any) => (
-                  <motion.a
-                    key={file.id}
-                    href={file.file_url}
-                    target="_blank"
-                    whileHover={{ scale: 1.02, backgroundColor: "rgba(255, 255, 255, 0.05)" }}
-                    className="flex items-center gap-5 p-5 bg-white/[0.02] border border-white/10 rounded-2xl transition-all"
-                  >
-                    <div className="w-12 h-12 bg-[#30D5C8]/5 text-[#30D5C8] rounded-xl flex items-center justify-center text-lg border border-[#30D5C8]/10 shrink-0">📂</div>
-                    <div className="overflow-hidden text-left">
-                      <p className="text-sm font-bold truncate text-white/80 tracking-tight">{file.file_name}</p>
-                      <p className="text-[9px] text-[#30D5C8] uppercase tracking-[0.2em] font-bold mt-1">Download Asset</p>
-                    </div>
-                  </motion.a>
-                ))}
-              </div>
-
-              {/* NEXT BILLING */}
-              <div className="bg-white/[0.03] p-10 rounded-[2.5rem] border border-[#30D5C8]/20 mt-10 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#30D5C8]/5 blur-3xl rounded-full" />
-                <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-white/20 mb-4 font-sans">Next Billing Cycle //</p>
+            <div className="bg-white/[0.03] p-10 rounded-[2.5rem] border border-[#30D5C8]/20 mt-10 relative overflow-hidden">
+                <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-white/20 mb-4">Next Billing Cycle //</p>
                 <h3 className="text-3xl font-bold tracking-tighter mb-8">{data.profile?.next_due_date || "N/A"}</h3>
-                
                 {data.profile?.payment_link && (
-                  <div className="flex justify-center md:justify-start">
                     <CTAButton text="Renew Subscription" onClick={handleRenewClick} />
-                  </div>
                 )}
-              </div>
-            </section>
-
-            {/* PERFORMANCE & GROWTH UPDATES */}
-            <section>
-              <SectionHeader title="Performance & Growth Updates" pulse />
-              <div className="grid gap-4">
-                {data.updates.length > 0 ? (
-                   data.updates.map((update: any) => (
-                    <motion.div 
-                      key={update.id}
-                      variants={fadeInUp}
-                      className="bg-white/[0.02] border border-white/10 p-8 rounded-[2rem] flex flex-col justify-between items-start gap-4 transition-all"
-                    >
-                      <p className="text-xl font-light text-white/80 leading-relaxed italic">"{update.content}"</p>
-                      <span className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-bold">
-                        {new Date(update.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                      </span>
-                    </motion.div>
-                  ))
-                ) : (
-                  <EmptyState message="Waiting for the next growth cycle updates..." />
-                )}
-              </div>
-            </section>
+            </div>
           </motion.aside>
-
         </div>
       </div>
     </div>
   );
 }
 
-/* ================= REUSABLE UI COMPONENTS ================= */
-
+// Sub-components as you had them...
 const SectionHeader = ({ title, pulse }: { title: string; pulse?: boolean }) => (
   <h2 className="text-[10px] uppercase tracking-[0.4em] text-white/30 mb-8 font-bold flex items-center gap-3">
     {pulse && <span className="w-2 h-2 bg-[#30D5C8] rounded-full animate-pulse shadow-[0_0_8px_#30D5C8]" />}
@@ -306,10 +217,4 @@ const Badge = ({ text, color = "text-white/40" }: { text: string; color?: string
   <span className={`px-4 py-1.5 bg-white/5 border border-white/10 rounded-full text-[9px] uppercase tracking-[0.2em] font-bold ${color}`}>
     {text}
   </span>
-);
-
-const EmptyState = ({ message }: { message: string }) => (
-  <div className="p-12 border border-dashed border-white/10 rounded-[2rem] text-center">
-    <p className="text-white/20 italic text-sm font-light">{message}</p>
-  </div>
 );
