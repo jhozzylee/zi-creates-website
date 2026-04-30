@@ -37,10 +37,8 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
     setLoading(true);
     setMessage("");
 
-    // Pointing to the callback route for the server-side handshake
-    const redirectUrl = typeof window !== "undefined"
-      ? `${window.location.origin}/auth/callback`
-      : "";
+    // ⚡️ FIXED: Hardcoded to your primary 'www' domain with the 'next' parameter
+    const redirectUrl = "https://www.zicreates.com/auth/callback?next=/dashboard";
 
     const { error } = await supabase.auth.signInWithOtp({
       email,
@@ -83,7 +81,6 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
             </button>
 
             <div className="flex flex-col items-center justify-center px-8 md:px-16 pt-20 pb-20">
-              
               <div className="text-center mb-16 max-w-[340px]">
                 <div className="flex items-center justify-center gap-3 mb-6">
                    <span className="w-1.5 h-1.5 rounded-full bg-[#30D5C8] shadow-[0_0_8px_#30D5C8]" />
