@@ -3,10 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
-import { useRouter } from "next/navigation"; // ⚡️ Logic addition
+import { useRouter } from "next/navigation"; 
 import CTAButton from "@/components/CTAButton"; 
 
-// 💫 Zi Creates Signature Motion Config
 const fluidTransition = {
   type: "spring" as const,
   damping: 35,
@@ -25,7 +24,7 @@ const fadeInUp = {
 };
 
 export default function ClientDashboard() {
-  const router = useRouter(); // ⚡️ Logic addition
+  const router = useRouter(); 
   const [data, setData] = useState<any>({
     profile: null,
     projects: [],
@@ -38,12 +37,11 @@ export default function ClientDashboard() {
 
   useEffect(() => {
     async function loadDashboardData() {
-      // ⚡️ Added secure session check
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
         setLoading(false);
-        router.push("/"); // ⚡️ Redirect home if session doesn't exist
+        router.push("/"); 
         return;
       }
 
@@ -59,10 +57,13 @@ export default function ClientDashboard() {
           .order('created_at', { ascending: false })
       ]);
 
+      // ⚡️ DEBUG LOG: Check your browser console to see if data is actually arriving
+      console.log("Supabase Raw Data:", { milestones, deliverables, updates });
+
       setData({
         profile: profile.data,
         projects: projects.data || [],
-        milestones: milestones.data || [],
+        milestones: milestones.data || [], // Ensure this matches your table column names
         payments: payments.data || [],
         deliverables: deliverables.data || [],
         updates: updates.data || [],
@@ -72,7 +73,7 @@ export default function ClientDashboard() {
     }
 
     loadDashboardData();
-  }, [router]); // ⚡️ router added to dependency array
+  }, [router]);
 
   const handleRenewClick = () => {
     if (data.profile?.payment_link) {
@@ -123,7 +124,6 @@ export default function ClientDashboard() {
               </div>
             </div>
 
-            {/* INTEGRATED FINANCIAL STATS */}
             <div className="flex gap-12 border-l border-white/10 pl-12 h-fit hidden md:flex">
               {data.payments.slice(0, 2).map((pay: any) => (
                 <div key={pay.id}>
@@ -140,7 +140,6 @@ export default function ClientDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
           
-          {/* ================= LEFT COLUMN ================= */}
           <motion.div 
             variants={staggerContainer}
             initial="initial"
@@ -297,8 +296,6 @@ export default function ClientDashboard() {
     </div>
   );
 }
-
-/* ================= REUSABLE UI COMPONENTS ================= */
 
 const SectionHeader = ({ title, pulse }: { title: string; pulse?: boolean }) => (
   <h2 className="text-[10px] uppercase tracking-[0.4em] text-white/30 mb-8 font-bold flex items-center gap-3">
