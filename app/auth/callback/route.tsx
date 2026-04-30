@@ -6,13 +6,11 @@ import { NextResponse } from "next/server";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  // Default to /dashboard if no "next" param is provided
+  // Check if there is a 'next' param, otherwise go to dashboard
   const next = searchParams.get("next") ?? "/dashboard";
 
   if (code) {
-    // ⚡️ Fix: Await the cookies() promise
     const cookieStore = await cookies();
-    
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -32,11 +30,13 @@ export async function GET(request: Request) {
     );
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
+    
     if (!error) {
+      // ⚡️ THIS IS THE REDIRECT LOGIC
       return NextResponse.redirect(`${origin}${next}`);
     }
   }
 
-  // If something goes wrong, send them back to the portal entry
-  return NextResponse.redirect(`${origin}/`);
+  // If there is an error or no code, it falls back to home
+  return NextResponse.redirect(`${origin}`);
 }
