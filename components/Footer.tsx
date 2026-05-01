@@ -88,7 +88,7 @@ const Footer = () => {
             <h4 className="text-[11px] uppercase tracking-[0.2em] font-bold text-primary mb-6">Connect</h4>
             <ul className="space-y-4 text-sm font-light text-neutral/50">
               <li className="hover:text-primary transition-colors duration-300"><a href="mailto:support@zicreates.com">support@zicreates.com</a></li>
-              <li className="hover:text-primary transition-colors duration-300"><a href="tel:+2348137956463">+234 813 795 6463</a></li>
+              <li className="hover:text-primary transition-colors duration-300"><a href="tel:+2348137956463">+1 586-615-2470</a></li>
               <li className="hover:text-primary transition-colors duration-300">
                 <button onClick={() => setIsContactOpen(true)} className="text-left">
                   General Inquiries

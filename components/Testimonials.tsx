@@ -88,6 +88,17 @@ const TestimonialCard = ({ photo, quote, name, title, logo }: TestimonialCardPro
 const Testimonials = () => {
   const testimonials = [
     {
+      photo: "/David_Kellet.webp",
+      quote: (
+      <>
+        Working with Zi Creates was a great experience. They understood Ki Computing’s needs and delivered <span className="text-primary font-medium italic">clean, modern work</span> that enhanced our brand. Their attention to detail throughout the project was exceptional.
+      </>
+      ),
+      name: "David Kellett",
+      title: "Founder, K.I. Computing",
+      logo: "/Ki-Computing.png",
+    },
+    {
       photo: "/Ayoola.webp",
       quote: (
         <>
@@ -120,6 +131,7 @@ const Testimonials = () => {
       title: "CEO, ByteBazaar",
       logo: "/ByteBazaar.png",
     },
+    
   ];
 
   return (
