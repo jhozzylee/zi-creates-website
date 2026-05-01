@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
-import { useRouter } from "next/navigation";
-import CTAButton from "@/components/CTAButton";
+import { useRouter } from "next/navigation"; 
+import CTAButton from "@/components/CTAButton"; 
 
 const fluidTransition = {
   type: "spring" as const,
@@ -24,7 +24,7 @@ const fadeInUp = {
 };
 
 export default function ClientDashboard() {
-  const router = useRouter();
+  const router = useRouter(); 
   const [data, setData] = useState<any>({
     profile: null,
     projects: [],
@@ -37,28 +37,11 @@ export default function ClientDashboard() {
 
   useEffect(() => {
     async function loadDashboardData() {
-      // First, check for an active session (handles SSR cookie handoff)
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (!session) {
-        // Give the session cookie a moment to propagate after magic link redirect
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        const { data: { session: retrySession } } = await supabase.auth.getSession();
-
-        if (!retrySession) {
-          setLoading(false);
-          router.push("/");
-          return;
-        }
-      }
-
-      // Session confirmed — now get the user
       const { data: { user } } = await supabase.auth.getUser();
-
+      
       if (!user) {
         setLoading(false);
-        router.push("/");
+        router.push("/"); 
         return;
       }
 
@@ -74,12 +57,13 @@ export default function ClientDashboard() {
           .order('created_at', { ascending: false })
       ]);
 
+      // ⚡️ DEBUG LOG: Check your browser console to see if data is actually arriving
       console.log("Supabase Raw Data:", { milestones, deliverables, updates });
 
       setData({
         profile: profile.data,
         projects: projects.data || [],
-        milestones: milestones.data || [],
+        milestones: milestones.data || [], // Ensure this matches your table column names
         payments: payments.data || [],
         deliverables: deliverables.data || [],
         updates: updates.data || [],
@@ -88,16 +72,7 @@ export default function ClientDashboard() {
       setLoading(false);
     }
 
-    // Also listen for auth state changes — catches the session when it fires after redirect
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" && session) {
-        loadDashboardData();
-      }
-    });
-
     loadDashboardData();
-
-    return () => subscription.unsubscribe();
   }, [router]);
 
   const handleRenewClick = () => {
@@ -109,8 +84,8 @@ export default function ClientDashboard() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-[#050505] text-white">
-        <motion.div
-          animate={{ opacity: [0.4, 1, 0.4] }}
+        <motion.div 
+          animate={{ opacity: [0.4, 1, 0.4] }} 
           transition={{ duration: 2, repeat: Infinity }}
           className="text-xs uppercase tracking-[0.4em] font-bold text-[#30D5C8]"
         >
@@ -123,9 +98,9 @@ export default function ClientDashboard() {
   return (
     <div className="min-h-screen bg-[#050505] text-white pt-32 px-6 pb-24 selection:bg-[#30D5C8] selection:text-black font-sans">
       <div className="max-w-[1280px] mx-auto">
-
+        
         {/* ================= HEADER SECTION WITH FINANCIALS ================= */}
-        <motion.header
+        <motion.header 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={fluidTransition}
@@ -139,12 +114,12 @@ export default function ClientDashboard() {
               <h1 className="text-5xl md:text-7xl font-bold tracking-tighter leading-none mb-6">
                 {data.profile?.name || "Client"}<span className="text-[#30D5C8] italic font-serif font-light">.</span>
               </h1>
-
+              
               <div className="flex flex-wrap gap-3">
                 <Badge text={`${data.profile?.subscription_type || "Standard"} Plan`} />
-                <Badge
-                  text={`Status: ${data.profile?.status || "N/A"}`}
-                  color={data.profile?.status === 'Active' ? 'text-[#30D5C8]' : 'text-white/40'}
+                <Badge 
+                  text={`Status: ${data.profile?.status || "N/A"}`} 
+                  color={data.profile?.status === 'Active' ? 'text-[#30D5C8]' : 'text-white/40'} 
                 />
               </div>
             </div>
@@ -164,8 +139,8 @@ export default function ClientDashboard() {
         </motion.header>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-
-          <motion.div
+          
+          <motion.div 
             variants={staggerContainer}
             initial="initial"
             animate="animate"
@@ -176,9 +151,9 @@ export default function ClientDashboard() {
             <section>
               <SectionHeader title="Active Systems" />
               {data.projects.map((project: any) => (
-                <motion.div
-                  key={project.id}
-                  variants={fadeInUp}
+                <motion.div 
+                  key={project.id} 
+                  variants={fadeInUp} 
                   className="bg-white/[0.02] border border-white/10 p-10 rounded-[2.5rem] mb-8 last:mb-0 relative overflow-hidden backdrop-blur-xl"
                 >
                   <div className="flex justify-between items-start mb-10">
@@ -188,7 +163,7 @@ export default function ClientDashboard() {
                         <p className="text-white/40 text-xs uppercase tracking-widest font-bold">Engineering Progress</p>
                         <span className="w-1 h-1 bg-white/20 rounded-full" />
                         <p className="text-[#30D5C8] text-[10px] uppercase tracking-[0.2em] font-black">
-                          Phase: {project.current_phase || "Discovery"}
+                           Phase: {project.current_phase || "Discovery"}
                         </p>
                       </div>
                     </div>
@@ -251,7 +226,7 @@ export default function ClientDashboard() {
           </motion.div>
 
           {/* ================= RIGHT COLUMN (SIDEBAR) ================= */}
-          <motion.aside
+          <motion.aside 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ ...fluidTransition, delay: 0.3 }}
@@ -283,7 +258,7 @@ export default function ClientDashboard() {
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#30D5C8]/5 blur-3xl rounded-full" />
                 <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-white/20 mb-4 font-sans">Next Billing Cycle //</p>
                 <h3 className="text-3xl font-bold tracking-tighter mb-8">{data.profile?.next_due_date || "N/A"}</h3>
-
+                
                 {data.profile?.payment_link && (
                   <div className="flex justify-center md:justify-start">
                     <CTAButton text="Renew Subscription" onClick={handleRenewClick} />
@@ -297,8 +272,8 @@ export default function ClientDashboard() {
               <SectionHeader title="Performance & Growth Updates" pulse />
               <div className="grid gap-4">
                 {data.updates.length > 0 ? (
-                  data.updates.map((update: any) => (
-                    <motion.div
+                   data.updates.map((update: any) => (
+                    <motion.div 
                       key={update.id}
                       variants={fadeInUp}
                       className="bg-white/[0.02] border border-white/10 p-8 rounded-[2rem] flex flex-col justify-between items-start gap-4 transition-all"

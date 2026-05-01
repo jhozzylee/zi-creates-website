@@ -19,6 +19,8 @@ const fluidTransition = {
 
 const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [step, setStep] = useState(1); // 1 = Email, 2 = Code
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -27,30 +29,55 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
+      // Reset state when modal closes
+      setStep(1);
+      setOtp("");
+      setMessage("");
     }
     return () => { document.body.style.overflow = "unset"; };
   }, [isOpen]);
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  // Step 1: Send the 6-digit code
+  const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
     setLoading(true);
     setMessage("");
 
-    // ⚡️ FIXED: Hardcoded to your primary 'www' domain with the 'next' parameter
-    const redirectUrl = "https://www.zicreates.com/auth/callback?next=/dashboard";
-
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: redirectUrl },
+      options: {
+        shouldCreateUser: false, // Prevents random signups if you only want existing clients
+      },
     });
 
     if (error) {
       setMessage(`Error: ${error.message}`);
     } else {
-      setMessage("Verification link sent. Check your inbox to enter.");
+      setStep(2);
+      setMessage("A 6-digit access code has been sent to your inbox.");
     }
+    setLoading(false);
+  };
 
+  // Step 2: Verify the 6-digit code
+  const handleVerifyOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otp) return;
+    setLoading(true);
+
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token: otp,
+      type: 'email',
+    });
+
+    if (error) {
+      setMessage(`Invalid code: ${error.message}`);
+    } else {
+      // SUCCESS: Client-side redirect works perfectly here
+      window.location.href = "/dashboard";
+    }
     setLoading(false);
   };
 
@@ -81,40 +108,52 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
             </button>
 
             <div className="flex flex-col items-center justify-center px-8 md:px-16 pt-20 pb-20">
+              
               <div className="text-center mb-16 max-w-[340px]">
                 <div className="flex items-center justify-center gap-3 mb-6">
                    <span className="w-1.5 h-1.5 rounded-full bg-[#30D5C8] shadow-[0_0_8px_#30D5C8]" />
                    <span className="uppercase tracking-[0.5em] text-[10px] font-bold text-white/30">Executive Portal</span>
                 </div>
                 <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-                  Welcome<span className="text-[#30D5C8]">.</span>
+                  {step === 1 ? "Welcome" : "Verify"}<span className="text-[#30D5C8]">.</span>
                 </h2>
                 <p className="text-white/40 text-sm font-light leading-relaxed">
-                  Enter your credentials to receive a secure access link to your project dashboard.
+                  {step === 1 
+                    ? "Enter your credentials to receive a secure access code." 
+                    : "Enter the 6-digit code sent to your email to continue."}
                 </p>
               </div>
 
               <div className="w-full max-w-[380px]">
-                <form onSubmit={handleLogin} className="space-y-12">
-                  <div className="relative group">
-                    <label className="text-[10px] uppercase tracking-[0.4em] font-bold text-white/20 mb-4 block group-focus-within:text-[#30D5C8] transition-colors">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      placeholder="e.g. partner@company.com"
-                      className="w-full bg-transparent border-b border-white/10 py-4 text-xl font-light tracking-tight text-white focus:outline-none focus:border-[#30D5C8] transition-all placeholder:text-white/15"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      autoFocus
-                    />
-                  </div>
+                <form onSubmit={step === 1 ? handleSendOTP : handleVerifyOTP} className="space-y-12">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={step}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="relative group"
+                    >
+                      <label className="text-[10px] uppercase tracking-[0.4em] font-bold text-white/20 mb-4 block group-focus-within:text-[#30D5C8] transition-colors">
+                        {step === 1 ? "Email Address" : "Access Code"}
+                      </label>
+                      <input
+                        type={step === 1 ? "email" : "text"}
+                        placeholder={step === 1 ? "e.g. partner@company.com" : "000000"}
+                        className="w-full bg-transparent border-b border-white/10 py-4 text-xl font-light tracking-tight text-white focus:outline-none focus:border-[#30D5C8] transition-all placeholder:text-white/15"
+                        value={step === 1 ? email : otp}
+                        onChange={(e) => step === 1 ? setEmail(e.target.value) : setOtp(e.target.value)}
+                        required
+                        autoFocus
+                        maxLength={step === 2 ? 6 : undefined}
+                      />
+                    </motion.div>
+                  </AnimatePresence>
 
                   <div className="flex flex-col items-center gap-10">
                     <CTAButton
                       type="submit"
-                      text={loading ? "SENDING LINK..." : "REQUEST ACCESS"}
+                      text={loading ? "PROCESSING..." : step === 1 ? "REQUEST ACCESS" : "VERIFY & ENTER"}
                       disabled={loading}
                     />
 
@@ -125,11 +164,21 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
                         className="text-center bg-white/[0.03] border border-white/5 py-3 px-8 rounded-full"
                       >
                         <p className={`text-[11px] font-medium tracking-wide ${
-                          message.includes("Error") ? "text-red-400" : "text-[#30D5C8]"
+                          message.includes("Error") || message.includes("Invalid") ? "text-red-400" : "text-[#30D5C8]"
                         }`}>
                           {message}
                         </p>
                       </motion.div>
+                    )}
+                    
+                    {step === 2 && (
+                      <button 
+                        type="button"
+                        onClick={() => setStep(1)}
+                        className="text-[10px] uppercase tracking-widest text-white/20 hover:text-white transition-colors"
+                      >
+                        ← Back to Email
+                      </button>
                     )}
                   </div>
                 </form>
