@@ -19,12 +19,11 @@ const fluidTransition = {
 
 const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState(new Array(8).fill(""));
+  // ⚡️ CHANGED BACK TO 6 DIGITS
+  const [otp, setOtp] = useState(new Array(6).fill(""));
   const [step, setStep] = useState(1); 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  
-  // ⚡️ FIXED: Explicit type for the refs array
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
@@ -33,12 +32,13 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
     } else {
       document.body.style.overflow = "unset";
       setStep(1);
-      setOtp(new Array(8).fill(""));
+      setOtp(new Array(6).fill(""));
       setMessage("");
     }
     return () => { document.body.style.overflow = "unset"; };
   }, [isOpen]);
 
+  // --- OTP BOX LOGIC ---
   const handleOtpChange = (value: string, index: number) => {
     if (isNaN(Number(value))) return;
 
@@ -46,7 +46,8 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
     newOtp[index] = value.substring(value.length - 1);
     setOtp(newOtp);
 
-    if (value && index < 7) {
+    // ⚡️ UPDATED: Shift focus max index check to 5
+    if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
@@ -58,13 +59,15 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
-    const data = e.clipboardData.getData("text").slice(0, 8).split("");
-    if (data.length === 8) {
+    // ⚡️ UPDATED: Slice up to 6 digits
+    const data = e.clipboardData.getData("text").slice(0, 6).split("");
+    if (data.length === 6) {
       setOtp(data);
-      inputRefs.current[7]?.focus();
+      inputRefs.current[5]?.focus();
     }
   };
 
+  // --- AUTH LOGIC ---
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || loading) return;
@@ -80,7 +83,7 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
       setMessage(`Access Denied: ${error.message}`);
     } else {
       setStep(2);
-      setMessage("8-digit security code sent to your authorized email.");
+      setMessage("6-digit security code sent to your authorized email.");
     }
     setLoading(false);
   };
@@ -88,7 +91,8 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     const fullOtp = otp.join("");
-    if (fullOtp.length < 8 || loading) return;
+    // ⚡️ UPDATED: Verification length requirement check to 6
+    if (fullOtp.length < 6 || loading) return;
     setLoading(true);
 
     const { error } = await supabase.auth.verifyOtp({
@@ -139,11 +143,11 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
                 <p className="text-white/40 text-sm font-light max-w-xs mx-auto leading-relaxed">
                   {step === 1 
                     ? "Identify your account to receive a secure entry code." 
-                    : "Enter the 8-digit security code sent to your device."}
+                    : "Enter the 6-digit security code sent to your device."}
                 </p>
               </div>
 
-              <div className="w-full max-w-[500px]">
+              <div className="w-full max-w-[440px]">
                 <form onSubmit={step === 1 ? handleSendOTP : handleVerifyOTP} className="space-y-14">
                   <AnimatePresence mode="wait">
                     {step === 1 ? (
@@ -163,15 +167,15 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
                       </motion.div>
                     ) : (
                       <motion.div key="otp" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="flex flex-col items-center">
-                         <div className="grid grid-cols-4 md:grid-cols-8 gap-2 md:gap-3 justify-center" onPaste={handlePaste}>
+                         {/* ⚡️ USING YOUR ORIGINAL STYLING FOR 6 BOXES */}
+                         <div className="flex gap-2 md:gap-4 justify-center" onPaste={handlePaste}>
                           {otp.map((data, index) => (
                             <input
                               key={index}
                               type="text"
                               maxLength={1}
-                              // ⚡️ FIXED: Added curly braces to make this a void function
                               ref={(el) => { inputRefs.current[index] = el; }}
-                              className="w-10 h-14 md:w-12 md:h-16 bg-white/[0.03] border border-white/10 rounded-2xl text-center text-2xl font-light text-[#30D5C8] focus:border-[#30D5C8] focus:outline-none focus:ring-1 focus:ring-[#30D5C8] transition-all shadow-[0_0_20px_rgba(48,213,200,0.05)]"
+                              className="w-12 h-16 md:w-16 md:h-20 bg-white/[0.03] border border-white/10 rounded-2xl text-center text-3xl font-light text-[#30D5C8] focus:border-[#30D5C8] focus:outline-none focus:ring-1 focus:ring-[#30D5C8] transition-all shadow-[0_0_20px_rgba(48,213,200,0.05)]"
                               value={data}
                               onChange={(e) => handleOtpChange(e.target.value, index)}
                               onKeyDown={(e) => handleKeyDown(e, index)}
@@ -185,8 +189,8 @@ const LoginModal = ({ isOpen, onClose }: LoginModalProps) => {
                   <div className="flex flex-col items-center gap-10">
                     <CTAButton
                       type="submit"
-                      text={loading ? "AUTHENTICATING..." : step === 1 ? "REQUEST ACCESS" : "AUTHORIZE ENTRY"}
-                      disabled={loading || (step === 2 && otp.join("").length < 8)}
+                      text={loading ? "AUTHENTICATING..." : step === 1 ? "REQUEST ACCESS" : "VERIFY & ENTER"}
+                      disabled={loading || (step === 2 && otp.join("").length < 6)}
                     />
 
                     {message && (
