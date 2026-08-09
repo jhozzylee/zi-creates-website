@@ -4,61 +4,49 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "@/lib/supabaseClient"; 
 import CTAButton from "./CTAButton";
 import GetStarted from "./GetStarted";
 import logo from "../public/Logo.svg";
+import LoginModal from "./LoginModal";
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-
   const pathname = usePathname();
   const router = useRouter();
 
-  // 🎯 portal check logic
-  const isDashboard = pathname.startsWith("/dashboard");
+  const handleLoginOpen = () => {
+  setShowLoginModal(true);
+  setMenuOpen(false);
+};
 
   const navItems = ["Expertise", "Services", "Process", "Results", "Plans"];
 
-  const fluidTransition = {
-    type: "spring" as const,
-    damping: 35,
-    stiffness: 200,
-    mass: 1
-  };
-
+  // Detect scroll to trigger the header "condensation"
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Lock scroll when mobile menu is open
-  useEffect(() => {
-    if (menuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-  }, [menuOpen]);
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push("/");
+  const handleModalOpen = () => {
+    setShowModal(true);
+    setMenuOpen(false);
   };
 
   const handleNavClick = (section: string) => {
-    const id = section.toLowerCase();
+    const sectionId = section.toLowerCase();
     if (pathname !== "/") {
       router.push("/");
       setTimeout(() => {
-        document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+        const el = document.getElementById(sectionId);
+        if (el) el.scrollIntoView({ behavior: "smooth" });
       }, 300);
     } else {
-      document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+      const el = document.getElementById(sectionId);
+      if (el) el.scrollIntoView({ behavior: "smooth" });
     }
     setMenuOpen(false);
   };
@@ -67,150 +55,140 @@ const Header = () => {
     if (pathname === "/") {
       e.preventDefault();
       window.scrollTo({ top: 0, behavior: "smooth" });
+      setMenuOpen(false);
     }
-    setMenuOpen(false);
   };
 
   return (
     <>
-      <header
-        className={`fixed top-0 left-0 w-full z-40 transition-all duration-500 ${
-          scrolled || isDashboard
-            ? "bg-background/80 backdrop-blur-xl border-b border-neutral/5 py-3 shadow-2xl"
-            : "bg-background py-5 px-4"
+      <header 
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
+          scrolled 
+          ? "bg-background/80 backdrop-blur-xl border-b border-neutral/5 py-3 shadow-2xl" 
+          : "bg-background py-5 px-4"
         }`}
       >
         <div className="max-w-[1280px] mx-auto flex items-center justify-between">
           
-          {/* ================= LOGO SECTION ================= */}
-          {isDashboard ? (
-            <div className="flex items-center opacity-80 cursor-default">
-              <Image src={logo} alt="Zi Creates Logo" className="h-6 w-auto" priority />
-            </div>
-          ) : (
-            <Link
-              href="/"
-              onClick={handleLogoClick}
-              className="flex items-center transition-transform hover:scale-105 active:scale-95"
-            >
-              <Image src={logo} alt="Zi Creates Logo" className="h-6 w-auto" priority />
-            </Link>
-          )}
+          {/* Logo - Stays original */}
+          <Link href="/" onClick={handleLogoClick} className="flex items-center transition-transform hover:scale-105">
+            <Image src={logo} alt="Logo" className="h-6 w-auto" priority />
+          </Link>
 
-          {/* ================= NAVIGATION LOGIC ================= */}
-          {!isDashboard ? (
-            <>
-              {/* Marketing Navigation */}
-              <nav className="hidden lg:flex items-center space-x-2">
-                {navItems.map((item) => (
-                  <button
-                    key={item}
-                    onClick={() => handleNavClick(item)}
-                    className="text-neutral text-[15px] font-light px-5 py-2 rounded-full transition-all duration-300 hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20"
-                  >
-                    {item}
-                  </button>
-                ))}
-              </nav>
-
-              <div className="hidden lg:block">
-                <CTAButton text="Sign in" onClick={() => setShowModal(true)} />
-              </div>
-
-              {/* Mobile Hamburger (Marketing Only) */}
-              <div className="lg:hidden">
-                <button 
-                  onClick={() => setMenuOpen(true)} 
-                  aria-label="Open menu" 
-                  className="p-2 focus:outline-none"
-                >
-                  <div className="w-6 h-5 flex flex-col justify-between items-end">
-                    <span className="h-0.5 w-6 bg-neutral" />
-                    <span className="h-0.5 w-4 bg-neutral" />
-                    <span className="h-0.5 w-5 bg-neutral" />
-                  </div>
-                </button>
-              </div>
-            </>
-          ) : (
-            /* Dashboard Executive Navigation */
-            <div className="flex items-center gap-6 md:gap-10">
-              <div className="hidden sm:flex items-center gap-2.5 px-4 py-1.5 bg-neutral/5 rounded-full border border-neutral/5">
-                <span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse shadow-[0_0_8px_rgba(48,213,200,0.6)]" />
-                <span className="text-[9px] uppercase tracking-[0.3em] text-neutral/40 font-bold font-mono">
-                  Secure_Session
-                </span>
-              </div>
-              
-              <button 
-                onClick={handleSignOut}
-                className="group flex items-center gap-3 transition-all"
+          {/* Desktop Navigation - Original buttons, refined spacing */}
+          <nav className="hidden lg:flex items-center space-x-2">
+            {navItems.map((item) => (
+              <button
+                key={item}
+                onClick={() => handleNavClick(item)}
+                className="text-neutral text-[15px] font-light px-5 py-2 rounded-full transition-all duration-300 hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20"
               >
-                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-neutral/30 group-hover:text-red-400 transition-colors">
-                  Sign Out
-                </span>
-                <div className="w-8 h-8 rounded-full border border-neutral/10 flex items-center justify-center group-hover:border-red-400/30 group-hover:bg-red-400/5 transition-all">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-neutral/20 group-hover:text-red-400 transition-colors">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                    <polyline points="16 17 21 12 16 7" />
-                    <line x1="21" y1="12" x2="9" y2="12" />
-                  </svg>
-                </div>
+                {item}
               </button>
-            </div>
-          )}
+            ))}
+          </nav>
+
+          {/* Desktop Actions */}
+          <div className="hidden lg:flex items-center gap-4">
+            {/* Login Portal */}
+            <button
+              onClick={handleLoginOpen}
+              className="group flex items-center justify-center w-10 h-10 rounded-full border border-neutral/10 text-neutral transition-all duration-300 hover:border-primary/30 hover:bg-primary/10 hover:text-primary"
+              aria-label="Login Portal"
+              title="Login Portal"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="transition-transform duration-300 group-hover:scale-105"
+              >
+                <circle cx="12" cy="8" r="4" />
+                <path d="M5 21c0-3.866 3.134-7 7-7s7 3.134 7 7" />
+              </svg>
+            </button>
+
+            <CTAButton text="Get Started" onClick={handleModalOpen} />
+          </div>
+
+          {/* Hamburger Menu Icon */}
+          <div className="lg:hidden z-[100]">
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="text-neutral focus:outline-none p-2"
+              aria-label="Toggle menu"
+            >
+              <div className="w-6 h-5 flex flex-col justify-between items-end">
+                <span className={`h-0.5 bg-neutral transition-all duration-300 ${menuOpen ? "w-6 rotate-45 translate-y-2" : "w-6"}`} />
+                <span className={`h-0.5 bg-neutral transition-all duration-300 ${menuOpen ? "opacity-0" : "w-4"}`} />
+                <span className={`h-0.5 bg-neutral transition-all duration-300 ${menuOpen ? "w-6 -rotate-45 -translate-y-2.5" : "w-5"}`} />
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu - The New "Slide-Down" Effect */}
+        <div 
+          className={`fixed inset-0 bg-background transition-all duration-700 ease-in-out lg:hidden z-[90] ${
+            menuOpen ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
+          }`}
+        >
+          <div className="flex flex-col h-full justify-center items-center px-8 space-y-8">
+            {navItems.map((item, i) => (
+              <button
+                key={item}
+                onClick={() => handleNavClick(item)}
+                style={{ transitionDelay: `${i * 50}ms` }}
+                className={`text-4xl font-bold tracking-tight text-neutral hover:text-primary transition-all duration-500 ${
+                  menuOpen ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
+                }`}
+              >
+                {item}
+              </button>
+            ))}
+            <div className={`pt-6 transition-all duration-700 delay-300 ${menuOpen ? "scale-100 opacity-100" : "scale-90 opacity-0"}`}>
+  
+            <button
+              onClick={handleLoginOpen}
+              className="flex items-center gap-3 mx-auto mb-8 text-sm uppercase tracking-[0.3em] font-medium text-neutral/60 hover:text-primary transition-colors"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="8" r="4" />
+                <path d="M5 21c0-3.866 3.134-7 7-7s7 3.134 7 7" />
+              </svg>
+
+              <span>Login Portal</span>
+            </button>
+
+  <CTAButton text="Get Started" onClick={handleModalOpen} />
+</div>
+          </div>
         </div>
       </header>
 
-      {/* ================= MOBILE MENU (MARKETING ONLY) ================= */}
-      <AnimatePresence mode="wait">
-        {menuOpen && !isDashboard && (
-          <>
-            <motion.button
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setMenuOpen(false)}
-              className="fixed top-5 right-5 z-[110] lg:hidden p-3 rounded-full bg-background/80 backdrop-blur-xl shadow-lg"
-            >
-              <span className="block w-6 h-0.5 bg-neutral rotate-45 translate-y-1" />
-              <span className="block w-6 h-0.5 bg-neutral -rotate-45 -translate-y-1" />
-            </motion.button>
+      {showModal && (
+        <GetStarted isOpen={showModal} onClose={() => setShowModal(false)} />
+      )}
 
-            <motion.div
-              initial={{ y: "-100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "-100%" }}
-              transition={fluidTransition}
-              className="fixed inset-0 z-[90] bg-background lg:hidden flex flex-col justify-center items-center px-8 space-y-8"
-            >
-              {navItems.map((item, i) => (
-                <motion.button
-                  key={item}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ ...fluidTransition, delay: 0.15 + i * 0.08 }}
-                  onClick={() => handleNavClick(item)}
-                  className="text-4xl font-bold tracking-tight text-neutral hover:text-primary"
-                >
-                  {item}
-                </motion.button>
-              ))}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ ...fluidTransition, delay: 0.5 }}
-                className="pt-6"
-              >
-                <CTAButton text="Sign in" onClick={() => { setShowModal(true); setMenuOpen(false); }} />
-              </motion.div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <LoginModal
+      isOpen={showLoginModal}
+      onClose={() => setShowLoginModal(false)}
+      />
 
-      {/* ================= MODALS ================= */}
-      {showModal && <GetStarted isOpen={showModal} onClose={() => setShowModal(false)} />}
     </>
   );
 };
