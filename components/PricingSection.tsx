@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import { useMediaQuery } from "react-responsive";
-import { Check, ArrowRight } from "lucide-react";
+import { Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import "swiper/css";
@@ -29,19 +29,17 @@ const fluidTransition = {
 };
 
 const PlanCard = ({ title, price, features, onClick, isPopular, index }: any) => {
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ ...fluidTransition, delay: index * 0.1 }}
-      /* Moving hover logic to Framer Motion fixes the "twitching" 
-         by preventing CSS and JS from fighting over the same properties.
-      */
       whileHover={{ 
         y: -12, 
-        backgroundColor: "rgba(255, 255, 255, 0.06)",
-        borderColor: "rgba(48, 213, 200, 0.4)" 
+        backgroundColor: "rgba(255, 255, 255, 0.06)"
       }}
       className="relative w-full h-[620px] group bg-neutral/[0.03] p-10 rounded-[2.5rem] border border-neutral/10 flex flex-col justify-between overflow-hidden cursor-default"
     >
@@ -79,12 +77,72 @@ const PlanCard = ({ title, price, features, onClick, isPopular, index }: any) =>
         
         <button
           onClick={onClick}
-          className="group/btn relative flex justify-between items-center w-full bg-background border border-neutral/10 rounded-full px-8 py-4 transition-all duration-300 hover:border-primary hover:shadow-[0_0_30px_rgba(48,213,200,0.1)]"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          className="
+            group/btn
+            relative
+            w-full
+            flex
+            items-center
+            justify-between
+            bg-background
+            border
+            border-neutral/10
+            rounded-full
+            px-8
+            py-4
+            transition-colors
+            duration-500
+            hover:border-neutral/20
+          "
         >
-          <span className="text-xs uppercase tracking-[0.2em] font-bold group-hover/btn:text-primary transition-colors">
+          {/* Button Text */}
+          <span
+            className="
+              text-xs
+              uppercase
+              tracking-[0.2em]
+              font-bold
+              text-neutral/60
+              transition-colors
+              duration-300
+              group-hover/btn:text-neutral
+            "
+          >
             Get Started
           </span>
-          <ArrowRight className="w-4 h-4 text-neutral/40 group-hover/btn:text-primary group-hover/btn:translate-x-1 transition-all" />
+
+          {/* Accent Dot */}
+          <span
+            className="
+              relative
+              flex
+              items-center
+              justify-center
+              w-6
+              h-6
+            "
+          >
+            <span
+              className={`
+                absolute
+                bottom-[3px]
+                w-[5px]
+                h-[5px]
+                rounded-full
+                bg-primary
+                transition-all
+                duration-400
+                ease-[cubic-bezier(0.23,1,0.32,1)]
+                ${
+                  isHovered
+                    ? "opacity-100 translate-y-0 scale-100"
+                    : "opacity-0 translate-y-2 scale-50"
+                }
+              `}
+            />
+          </span>
         </button>
       </div>
     </motion.div>

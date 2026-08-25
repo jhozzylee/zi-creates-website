@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
-import { ArrowRight, Phone, Search, Users, LucideIcon } from "lucide-react";
+import { Search, Users, Phone, LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 
 import "swiper/css";
@@ -26,44 +26,109 @@ interface CardProps {
   index: number;
 }
 
-const Card = ({ title, description, buttonText, onClick, icon, index }: CardProps) => (
-  <motion.div 
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ ...fluidTransition, delay: index * 0.1 }}
-    /* whileHover replaces Tailwind's transition-all to stop twitching */
-    whileHover={{ 
-      y: -8, 
-      backgroundColor: "rgba(255, 255, 255, 0.06)",
-      borderColor: "rgba(48, 213, 200, 0.4)" 
-    }}
-    className="w-full h-[280px] group relative bg-neutral/[0.03] p-8 rounded-[2rem] border border-neutral/10 flex flex-col justify-between overflow-hidden cursor-default"
-  >
-    {/* Subtle Background Icon Flare */}
-    <div className="absolute -right-4 -top-4 text-primary/[0.03] group-hover:text-primary/[0.06] transition-colors duration-500">
-      {React.createElement(icon, { size: 120 })}
-    </div>
+const Card = ({ title, description, buttonText, onClick, icon, index }: CardProps) => {
+  const [isHovered, setIsHovered] = useState(false);
 
-    <div className="relative z-10">
-      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform duration-500">
-        {React.createElement(icon, { size: 20 })}
-      </div>
-      <h4 className="text-xl font-bold tracking-tight mb-2">{title}</h4>
-      <p className="text-sm text-neutral/40 leading-relaxed max-w-[260px] group-hover:text-neutral/60 transition-colors duration-500">
-        {description}
-      </p>
-    </div>
-    
-    <button
-      onClick={onClick}
-      className="relative z-10 group/btn flex justify-between items-center w-full text-neutral text-xs font-bold uppercase tracking-[0.2em] border border-neutral/10 rounded-full px-6 py-3 transition-all duration-300 hover:border-primary hover:bg-primary/5"
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ ...fluidTransition, delay: index * 0.1 }}
+      whileHover={{ 
+        y: -8, 
+        backgroundColor: "rgba(255, 255, 255, 0.06)"
+      }}
+      className="w-full h-[280px] group relative bg-neutral/[0.03] p-8 rounded-[2rem] border border-neutral/10 flex flex-col justify-between overflow-hidden cursor-default"
     >
-      <span className="group-hover/btn:text-primary transition-colors">{buttonText}</span>
-      <ArrowRight className="w-4 h-4 text-neutral/30 group-hover/btn:text-primary group-hover/btn:translate-x-1 transition-all" />
-    </button>
-  </motion.div>
-);
+      {/* Subtle Background Icon Flare */}
+      <div className="absolute -right-4 -top-4 text-primary/[0.03] group-hover:text-primary/[0.06] transition-colors duration-500">
+        {React.createElement(icon, { size: 120 })}
+      </div>
+
+      <div className="relative z-10">
+        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform duration-500">
+          {React.createElement(icon, { size: 20 })}
+        </div>
+        <h4 className="text-xl font-bold tracking-tight mb-2">{title}</h4>
+        <p className="text-sm text-neutral/40 leading-relaxed max-w-[260px] group-hover:text-neutral/60 transition-colors duration-500">
+          {description}
+        </p>
+      </div>
+      
+      <button
+        onClick={onClick}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        className="
+          group/btn
+          relative
+          z-10
+          w-full
+          flex
+          items-center
+          justify-between
+          bg-background
+          border
+          border-neutral/10
+          rounded-full
+          px-6
+          py-3
+          transition-colors
+          duration-500
+          hover:border-neutral/20
+        "
+      >
+        {/* Button Text */}
+        <span
+          className="
+            text-xs
+            uppercase
+            tracking-[0.2em]
+            font-bold
+            text-neutral/60
+            transition-colors
+            duration-300
+            group-hover/btn:text-neutral
+          "
+        >
+          {buttonText}
+        </span>
+
+        {/* Accent Dot */}
+        <span
+          className="
+            relative
+            flex
+            items-center
+            justify-center
+            w-6
+            h-6
+          "
+        >
+          <span
+            className={`
+              absolute
+              bottom-[3px]
+              w-[5px]
+              h-[5px]
+              rounded-full
+              bg-primary
+              transition-all
+              duration-400
+              ease-[cubic-bezier(0.23,1,0.32,1)]
+              ${
+                isHovered
+                  ? "opacity-100 translate-y-0 scale-100"
+                  : "opacity-0 translate-y-2 scale-50"
+              }
+            `}
+          />
+        </span>
+      </button>
+    </motion.div>
+  );
+};
 
 interface ExtraSectionProps {
   onOpenBookCall: () => void;

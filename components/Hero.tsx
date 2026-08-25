@@ -154,7 +154,7 @@ const Hero = ({ onOpenBookCall }: HeroProps) => {
         <div className="max-w-[1280px] mx-auto pt-12 border-t border-neutral/5 text-center lg:text-left flex flex-col lg:flex-row items-center justify-between gap-10">
           <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-neutral/20 whitespace-nowrap">Trusted by global innovators</p>
           <div className="flex flex-wrap justify-center lg:justify-end items-center gap-8 md:gap-12 opacity-30 hover:opacity-100 transition-opacity duration-700">
-            {["Crestville", "Melganic", "ByteBazaar", "Webshapers", "Emcok", "Uplift"].map((client) => (
+            {["Crestville", "Melganic", "Tea", "Autoshelter", "Richmind"].map((client) => (
               <img key={client} src={`/${client}.png`} alt={client} className="h-5 md:h-6 object-contain grayscale brightness-200" />
             ))}
           </div>

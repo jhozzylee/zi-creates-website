@@ -3,7 +3,7 @@
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay, EffectFade, Navigation } from "swiper/modules";
-import { Quote } from "lucide-react";
+import { Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
 
 import "swiper/css";
@@ -131,7 +131,17 @@ const Testimonials = () => {
       title: "CEO, ByteBazaar",
       logo: "/ByteBazaar.png",
     },
-    
+    {
+      photo: "/Alex.webp",
+      quote: (
+        <>
+          Partnering with Zi Creates exceeded all our expectations. Beyond being <span className="text-primary font-medium italic">responsive and adaptable,</span> their eye for detail, steady creativity, and consistency turned our brand vision into reality.
+        </>
+      ),
+      name: "Alexandra Lee",
+      title: "Creator, HiPretty",
+      logo: "/HiPretty.png",
+    },
   ];
 
   return (
@@ -154,13 +164,33 @@ const Testimonials = () => {
         </motion.div>
 
         <div className="relative testimonials-swiper-container">
+          {/* Custom Desktop-Only Navigation Buttons */}
+          <button
+            id="testimonial-prev"
+            aria-label="Previous testimonial"
+            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full border border-primary/10 bg-background/80 backdrop-blur-sm items-center justify-center text-primary/30 hover:text-primary hover:border-primary/30 transition-all duration-300 -translate-x-6 lg:-translate-x-12 cursor-pointer"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          
+          <button
+            id="testimonial-next"
+            aria-label="Next testimonial"
+            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full border border-primary/10 bg-background/80 backdrop-blur-sm items-center justify-center text-primary/30 hover:text-primary hover:border-primary/30 transition-all duration-300 translate-x-6 lg:translate-x-12 cursor-pointer"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+
           <Swiper
             modules={[Pagination, Autoplay, EffectFade, Navigation]}
             loop={true}
             autoplay={{ delay: 6000, disableOnInteraction: false }}
             effect="fade"
             fadeEffect={{ crossFade: true }}
-            navigation={false}
+            navigation={{
+              nextEl: "#testimonial-next",
+              prevEl: "#testimonial-prev",
+            }}
             pagination={{
               clickable: true,
             }}

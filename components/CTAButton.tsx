@@ -13,45 +13,55 @@ interface CTAButtonProps {
   disabled?: boolean;
 }
 
-const CTAButton = ({ 
-  text, 
-  fullWidth = false, 
-  link, 
-  onClick, 
+const CTAButton = ({
+  text,
+  fullWidth = false,
+  link,
+  onClick,
   type = "button",
-  disabled = false 
+  disabled = false,
 }: CTAButtonProps) => {
-  
-  // High-end Button Styling:
-  // We use group-hover for the background "sweep" effect.
   const baseClasses = `
-    relative inline-flex items-center justify-center
-    text-[10px] md:text-[11px] font-bold uppercase tracking-[0.3em] 
-    py-4 px-12 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]
-    bg-primary text-background border border-primary
-    hover:text-primary hover:shadow-[0_0_30px_rgba(48,213,200,0.4)]
-    disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-background
-    ${fullWidth ? "w-full rounded-none" : "rounded-full"} 
-    no-underline cursor-pointer overflow-hidden group
+    group relative inline-flex items-center justify-center
+    px-9 py-4
+    border border-primary
+    rounded-full
+    bg-primary text-background
+    text-[10px] md:text-[11px]
+    font-bold uppercase tracking-[0.22em]
+    transition-all duration-300
+    hover:bg-transparent hover:text-primary
+    active:scale-[0.98]
+    disabled:opacity-40
+    disabled:cursor-not-allowed
+    ${fullWidth ? "w-full" : ""}
   `;
 
   const Content = () => (
     <>
-      {/* Liquid background fill on hover */}
-      <span className="absolute inset-0 bg-background translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]" />
-      
-      {/* Subtle Shimmer effect */}
-      <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] pointer-events-none" />
-      
-      {/* Label */}
-      <span className="relative z-10">{text}</span>
+      <span>{text}</span>
+
+      {/* Small accent detail */}
+      <span
+        className="
+          absolute right-3
+          w-1.5 h-1.5
+          rounded-full
+          bg-current
+          opacity-0
+          scale-0
+          transition-all duration-300
+          group-hover:opacity-100
+          group-hover:scale-100
+        "
+      />
     </>
   );
 
   if (link) {
     return (
       <motion.div
-        whileHover={{ scale: 1.02 }}
+        whileHover={{ y: -2 }}
         whileTap={{ scale: 0.98 }}
         className={fullWidth ? "w-full" : "inline-block"}
       >
@@ -63,11 +73,11 @@ const CTAButton = ({
   }
 
   return (
-    <motion.button 
-      whileHover={{ scale: 1.02 }}
+    <motion.button
+      whileHover={{ y: -2 }}
       whileTap={{ scale: 0.98 }}
-      type={type} 
-      className={baseClasses} 
+      type={type}
+      className={baseClasses}
       onClick={onClick}
       disabled={disabled}
     >
