@@ -89,6 +89,15 @@ const Footer = () => {
             <ul className="space-y-4 text-sm font-light text-neutral/50">
               <li className="hover:text-primary transition-colors duration-300"><a href="mailto:support@zicreates.com">support@zicreates.com</a></li>
               <li className="hover:text-primary transition-colors duration-300"><a href="tel:+2348137956463">+234 813 795 6463</a></li>
+              <li className="hover:text-primary transition-colors duration-300 leading-relaxed">
+                <a
+                  href="https://www.google.com/maps/search/?api=1&query=25+Alhaja+Agbeke+Street,+Ago+Palace+Way,+Okota,+Lagos,+Nigeria"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  25 Alhaja Agbeke Street, Ago Palace Way, Okota, Lagos
+                </a>
+              </li>
               <li className="hover:text-primary transition-colors duration-300">
                 <button onClick={() => setIsContactOpen(true)} className="text-left">
                   General Inquiries
