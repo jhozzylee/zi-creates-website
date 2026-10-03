@@ -46,7 +46,7 @@ export default function PortfolioGallery({ items }: { items: any[] }) {
             </span>
             <h2 className="text-5xl md:text-8xl font-bold tracking-tighter leading-[0.85]">
               Case <br />
-              <span className="text-neutral/10 italic font-serif font-light">Studies</span>
+              <span className="text-neutral/10 italic  font-light">Studies</span>
             </h2>
           </motion.div>
 

@@ -57,7 +57,7 @@ const PartnerAffiliateModal = ({ isOpen, onClose }: PartnerAffiliateModalProps) 
                   Partnerships
                 </span>
                 <h2 className="text-3xl md:text-5xl font-bold tracking-tighter leading-tight">
-                  Strategic <span className="text-neutral/20 italic font-serif font-light">Partner Network</span>
+                  Strategic <span className="text-neutral/20 italic  font-light">Partner Network</span>
                 </h2>
               </div>
 

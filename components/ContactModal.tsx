@@ -1,252 +1,380 @@
+
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import CTAButton from "./CTAButton";
 
-interface ContactModalProps {
+interface ContactFormProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const fluidTransition = {
-  type: "spring" as const,
-  damping: 30,
-  stiffness: 250,
-  mass: 1,
+interface FormData {
+  fullName: string;
+  email: string;
+  company: string;
+  contact: string;
+  source: string;
+  budget: string;
+  note: string;
+}
+
+const INITIAL_FORM: FormData = {
+  fullName: "",
+  email: "",
+  company: "",
+  contact: "",
+  source: "",
+  budget: "",
+  note: "",
 };
 
-const ContactModal = ({ isOpen, onClose }: ContactModalProps) => {
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    company: "",
-    contact: "",
-    note: "",
-  });
+const SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbx2B_4RKJ9nF-6xr_VA8LPZBTDOoZJ7GiSDw6nreOdkDoRfMVwfRXxYIM4oZcQz6aXQ/exec";
 
+const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
+  const [formData, setFormData] = useState<FormData>(INITIAL_FORM);
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Prevent background scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => { document.body.style.overflow = "unset"; };
-  }, [isOpen]);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    if (isOpen) {
-      fetch("https://ipapi.co/json/")
-        .then((res) => res.json())
-        .then((data) => {
-          setFormData((prev) => ({
-            ...prev,
-            contact: data?.country_calling_code || "+1",
-          }));
-        })
-        .catch(() => {
-          setFormData((prev) => ({ ...prev, contact: "+1" }));
-        });
-    }
-  }, [isOpen]);
+    if (!isOpen) return;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (error) setError(null);
-  };
+    let active = true;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.note.trim()) return;
+    fetch("https://ipapi.co/json/")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Country detection failed");
+        }
 
-    setIsSubmitting(true);
-    setError(null);
+        return response.json();
+      })
+      .then((data) => {
+        if (!active) return;
 
-    try {
-      const response = await fetch("https://sheetdb.io/api/v1/44eyixm95etfh", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data: formData }),
+        setFormData((prev) => ({
+          ...prev,
+          contact:
+            prev.contact || data?.country_calling_code || "",
+        }));
+      })
+      .catch(() => {
+        // The phone number can be entered manually.
       });
 
-      if (response.ok) {
-        setSubmitted(true);
-        setTimeout(() => {
-          setSubmitted(false);
-          onClose();
-        }, 3000);
-      } else {
-        setError("Failed to send message. Please try again.");
+    return () => {
+      active = false;
+    };
+  }, [isOpen]);
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    if (errorMessage) {
+      setErrorMessage("");
+    }
+  };
+
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
+    e.preventDefault();
+
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    setErrorMessage("");
+
+    try {
+      const response = await fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8",
+        },
+        body: JSON.stringify({
+          formType: "Contact",
+          data: formData,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Request failed with status ${response.status}.`
+        );
       }
-    } catch (err) {
-      setError("A connection error occurred. Please check your network.");
-      console.error("❌ Error:", err);
+
+      const responseText = await response.text();
+
+      console.log("Contact form response:", responseText);
+
+      if (responseText.trim()) {
+        try {
+          const result = JSON.parse(responseText);
+
+          if (result.success === false || result.error) {
+            throw new Error(
+              result.error || "The submission was unsuccessful."
+            );
+          }
+        } catch (error) {
+          if (
+            error instanceof Error &&
+            !(error instanceof SyntaxError)
+          ) {
+            throw error;
+          }
+        }
+      }
+
+      setSubmitted(true);
+      setFormData(INITIAL_FORM);
+    } catch (error) {
+      console.error("Contact form submission error:", error);
+
+      setErrorMessage(
+        error instanceof Error && error.message !== "Failed to fetch"
+          ? error.message
+          : "We couldn't send your message. Please try again."
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const handleClose = () => {
+    if (isSubmitting) return;
+
+    setSubmitted(false);
+    setErrorMessage("");
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-background/80 backdrop-blur-xl"
-            onClick={onClose}
-          />
+    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-background/80 backdrop-blur-xl"
+        onClick={handleClose}
+      />
 
-          {/* Modal Container */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 30 }}
-            transition={fluidTransition}
-            className="relative bg-background border border-neutral/10 text-neutral w-full max-w-5xl max-h-[95vh] rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden"
-          >
-            
-            {/* Sticky Header */}
-            <div className="flex-shrink-0 z-20 bg-background/90 backdrop-blur-md border-b border-neutral/10 p-8 md:p-16 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-              <div>
-                <span className="uppercase tracking-[0.2em] text-[10px] font-bold text-primary mb-2 block">
-                  Get In Touch
-                </span>
-                <h2 className="text-[32px] md:text-[48px] font-bold leading-tight tracking-tight">
-                  Contact <span className="text-primary italic font-serif font-light">Zi Creates</span>
-                </h2>
-              </div>
-              <button
-                onClick={onClose}
-                className="absolute top-8 right-8 text-neutral/40 hover:text-primary transition-colors text-2xl z-30"
-              >
-                ✕
-              </button>
-            </div>
+      {/* Form Container */}
+      <div className="relative bg-background border border-neutral/10 text-neutral w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-[2.5rem] p-8 md:p-16 shadow-2xl animate-in fade-in zoom-in duration-300">
+        {/* Close Button */}
+        <button
+          type="button"
+          onClick={handleClose}
+          disabled={isSubmitting}
+          aria-label="Close form"
+          className="absolute top-8 right-10 text-neutral/40 hover:text-primary transition-colors text-2xl disabled:opacity-40"
+        >
+          ✕
+        </button>
 
-            {/* Scrollable Content */}
-            <div className="overflow-y-auto p-8 md:p-16 flex-1 no-scrollbar">
-              {/* Info Bar */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
-                <motion.a
-                  whileHover={{ scale: 1.02 }}
-                  href="mailto:support@zicreates.com"
-                  className="group flex items-center gap-4 p-5 rounded-2xl bg-neutral/5 border border-neutral/5 hover:border-primary/20 transition-all"
-                >
-                  <div className="text-primary text-xl font-light italic">@</div>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-widest text-neutral/40">Email Us</p>
-                    <p className="font-medium group-hover:text-primary transition-colors">support@zicreates.com</p>
-                  </div>
-                </motion.a>
-                <motion.a
-                  whileHover={{ scale: 1.02 }}
-                  href="tel:+2348137956463"
-                  className="group flex items-center gap-4 p-5 rounded-2xl bg-neutral/5 border border-neutral/5 hover:border-primary/20 transition-all"
-                >
-                  <div className="text-primary text-xl font-light italic">#</div>
-                  <div>
-                    <p className="text-[10px] uppercase tracking-widest text-neutral/40">Call Us</p>
-                    <p className="font-medium group-hover:text-primary transition-colors">+234 813 795 6463</p>
-                  </div>
-                </motion.a>
-              </div>
+        {/* Heading */}
+        <div className="mb-10">
+          <span className="uppercase tracking-[0.2em] text-xs font-bold text-primary mb-4 block">
+            Contact Us
+          </span>
 
-              {submitted ? (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="py-20 text-center"
-                >
-                  <div className="text-5xl mb-6">📩</div>
-                  <h3 className="text-2xl font-bold mb-2">Message Received</h3>
-                  <p className="text-neutral/60 font-light italic">Our specialists will respond within 24 hours.</p>
-                </motion.div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-8">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
-                    <InputField
-                      label="Full Name *"
-                      name="fullName"
-                      placeholder="John Doe"
-                      value={formData.fullName}
-                      onChange={handleChange}
-                      required
-                    />
-                    <InputField
-                      label="Email *"
-                      name="email"
-                      type="email"
-                      placeholder="john@example.com"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                    />
-                    <InputField
-                      label="Phone Number"
-                      name="contact"
-                      placeholder="+1 (234) 567 8901"
-                      value={formData.contact}
-                      onChange={handleChange}
-                    />
-                    <InputField
-                      label="Company Name"
-                      name="company"
-                      placeholder="Your organization"
-                      value={formData.company}
-                      onChange={handleChange}
-                    />
-                  </div>
+          <h2 className="text-[32px] md:text-[48px] font-bold leading-tight">
+            Let's talk <span className="text-primary">creative.</span>
+          </h2>
 
-                  <div className="flex flex-col gap-3">
-                    <label className="text-sm font-bold uppercase tracking-wider text-neutral/50">Your Message *</label>
-                    <textarea
-                      name="note"
-                      placeholder="How can we help?"
-                      className="w-full p-5 rounded-2xl border border-neutral/10 bg-neutral/5 min-h-[150px] focus:border-primary/50 focus:bg-primary/5 outline-none transition-all placeholder:text-neutral/30 text-base"
-                      value={formData.note}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-
-                  {error && (
-                    <p className="text-red-400 text-sm font-medium animate-pulse">{error}</p>
-                  )}
-
-                  <div className="flex justify-end pt-4">
-                    <CTAButton
-                      text={isSubmitting ? "Sending..." : "Send Message"}
-                      onClick={undefined} // Let form submit trigger it
-                      disabled={isSubmitting}
-                    />
-                  </div>
-                </form>
-              )}
-            </div>
-          </motion.div>
+          <p className="text-neutral/60 font-light mt-2">
+            Tell us about your project and let's build something unforgettable.
+          </p>
         </div>
-      )}
-    </AnimatePresence>
+
+        {/* Success Message */}
+        {submitted ? (
+          <div
+            className="py-20 text-center space-y-4"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="text-6xl mb-6">✅</div>
+
+            <h3 className="text-2xl font-bold">Message Sent!</h3>
+
+            <p className="text-neutral/60 font-light">
+              Thanks for reaching out. We'll get back to you within 24 hours.
+            </p>
+
+            <div className="pt-6">
+              <CTAButton
+                text="Close"
+                type="button"
+                onClick={handleClose}
+              />
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
+              <InputField
+                label="Full Name *"
+                name="fullName"
+                placeholder="John Doe"
+                value={formData.fullName}
+                onChange={handleChange}
+                required
+              />
+
+              <InputField
+                label="Email *"
+                name="email"
+                type="email"
+                placeholder="john@company.com"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+
+              <InputField
+                label="Phone Number"
+                name="contact"
+                type="tel"
+                placeholder="+234 800 000 0000"
+                value={formData.contact}
+                onChange={handleChange}
+                required
+              />
+
+              <InputField
+                label="Company Name"
+                name="company"
+                placeholder="Acme Corp"
+                value={formData.company}
+                onChange={handleChange}
+              />
+
+              <SelectField
+                label="How did you find us? *"
+                name="source"
+                options={[
+                  "Social Media",
+                  "Referral",
+                  "Ads",
+                  "Google Search",
+                  "Other",
+                ]}
+                value={formData.source}
+                onChange={handleChange}
+                required
+              />
+
+              <SelectField
+                label="Project Budget"
+                name="budget"
+                options={[
+                  "Under $1,000",
+                  "$1,000 – $5,000",
+                  "$5,000 – $10,000",
+                  "Above $10,000",
+                ]}
+                value={formData.budget}
+                onChange={handleChange}
+              />
+            </div>
+
+            {/* Additional Note */}
+            <div className="flex flex-col gap-3">
+              <label
+                htmlFor="note"
+                className="text-sm font-bold uppercase tracking-wider text-neutral/50"
+              >
+                Additional Note *
+              </label>
+
+              <textarea
+                id="note"
+                name="note"
+                placeholder="Briefly describe your goals..."
+                className="w-full p-5 rounded-2xl border border-neutral/10 bg-neutral/5 min-h-[150px] focus:border-primary/50 focus:bg-primary/5 outline-none transition-all placeholder:text-neutral/30"
+                value={formData.note}
+                onChange={handleChange}
+                required
+                minLength={5}
+                maxLength={5000}
+              />
+            </div>
+
+            {/* Error Message */}
+            {errorMessage && (
+              <div
+                role="alert"
+                className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-500"
+              >
+                <p className="font-semibold">
+                  Submission unsuccessful
+                </p>
+                <p className="mt-1 break-words">{errorMessage}</p>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <div className="pt-4 flex justify-end">
+              <CTAButton
+                text={isSubmitting ? "Sending..." : "Send Message"}
+                type="submit"
+                disabled={isSubmitting}
+              />
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
   );
 };
 
-const InputField = ({ label, name, type = "text", placeholder, value, onChange, required }: any) => (
+interface InputFieldProps {
+  label: string;
+  name: string;
+  type?: string;
+  placeholder: string;
+  value: string;
+  onChange: (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => void;
+  required?: boolean;
+}
+
+const InputField = ({
+  label,
+  name,
+  type = "text",
+  placeholder,
+  value,
+  onChange,
+  required = false,
+}: InputFieldProps) => (
   <div className="flex flex-col gap-3">
-    <label className="text-sm font-bold uppercase tracking-wider text-neutral/50">{label}</label>
+    <label
+      htmlFor={name}
+      className="text-sm font-bold uppercase tracking-wider text-neutral/50"
+    >
+      {label}
+    </label>
+
     <input
+      id={name}
       type={type}
       name={name}
       placeholder={placeholder}
-      className="w-full px-5 py-4 rounded-xl border border-neutral/10 bg-neutral/5 focus:border-primary/50 focus:bg-primary/5 outline-none transition-all placeholder:text-neutral/30 text-base"
+      className="w-full px-5 py-4 rounded-xl border border-neutral/10 bg-neutral/5 focus:border-primary/50 focus:bg-primary/5 outline-none transition-all placeholder:text-neutral/30"
       value={value}
       onChange={onChange}
       required={required}
@@ -254,4 +382,62 @@ const InputField = ({ label, name, type = "text", placeholder, value, onChange, 
   </div>
 );
 
-export default ContactModal;
+interface SelectFieldProps {
+  label: string;
+  name: string;
+  options: string[];
+  value: string;
+  onChange: (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => void;
+  required?: boolean;
+}
+
+const SelectField = ({
+  label,
+  name,
+  options,
+  value,
+  onChange,
+  required = false,
+}: SelectFieldProps) => (
+  <div className="flex flex-col gap-3">
+    <label
+      htmlFor={name}
+      className="text-sm font-bold uppercase tracking-wider text-neutral/50"
+    >
+      {label}
+    </label>
+
+    <div className="relative">
+      <select
+        id={name}
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="w-full px-5 py-4 rounded-xl border border-neutral/10 bg-neutral/5 focus:border-primary/50 focus:bg-primary/5 outline-none appearance-none cursor-pointer transition-all"
+        required={required}
+      >
+        <option value="" disabled hidden className="text-neutral/30">
+          Select option...
+        </option>
+
+        {options.map((option) => (
+          <option
+            key={option}
+            value={option.toLowerCase()}
+            className="bg-background text-neutral"
+          >
+            {option}
+          </option>
+        ))}
+      </select>
+
+      <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-neutral/30 text-xs">
+        ▼
+      </div>
+    </div>
+  </div>
+);
+
+export default ContactForm;

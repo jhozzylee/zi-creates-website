@@ -1,8 +1,16 @@
 import { openai } from '@ai-sdk/openai';
-import { streamText, tool } from 'ai'; // Added 'tool'
-import { z } from 'zod'; // Ensure zod is installed
+import { streamText, tool } from 'ai';
+import { z } from 'zod';
+import { createClient } from 'next-sanity';
 
 export const maxDuration = 30;
+
+const sanityClient = createClient({
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "j61z87re",
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
+  useCdn: true,
+  apiVersion: "2024-01-01",
+});
 
 export async function POST(req: Request) {
   try {
@@ -41,6 +49,59 @@ If the user mentions an agency, company, startup, or brand name:
 • First brifely list their apparent services or positioning no long talks
 • Then explain clearly how ZI Creates can enhance, elevate, or reposition their brand
 - EXCEPTION: If the user mentions "ZI Creates" or "ZI," DO NOT use the search tool. Instead, remember you work for Zi Creates.
+
+PORTFOLIO RESEARCH
+
+When the user asks about ZI Creates' past work, previous projects, experience, examples, industries served, or asks to see relevant work:
+
+• MUST use the "searchPortfolio" tool.
+• The "searchPortfolio" results are the ONLY source of portfolio projects.
+• ONLY mention projects returned by the tool during the current request.
+• NEVER mention projects from memory, previous conversations, assumptions, or general knowledge.
+• NEVER invent or infer additional projects.
+
+RESPONSE FORMAT:
+
+If one relevant project is returned:
+
+Write 1-2 short sentences about the project.
+Do not provide a project brief.
+Do not provide a project breakdown.
+Do not list involvement.
+Do not list highlights.
+Do not list metrics.
+Do not list deliverables.
+Do not reproduce the portfolio description.
+Do not use headings such as "WEB DEVELOPMENT PROJECT".
+Do not use bullet points for the project.
+Do not provide a "Next Steps" section.
+
+If multiple relevant projects are returned:
+
+• Write 1-2 short sentences about ONE project only.
+• After that, mention the other returned projects by name only in one short sentence.
+• Do not describe the additional projects.
+
+The response should feel like a natural conversation, not a portfolio case study.
+
+CONTENT RESTRICTIONS:
+
+• Do NOT copy or closely reproduce the project's description from the tool result.
+• Do NOT expose the full portfolio brief to the user.
+• Do NOT mention involvement, technical details, performance scores, accessibility details, deliverables, or project highlights unless the user specifically asks for them.
+• Do NOT include image URLs, video URLs, Markdown links, or raw portfolio data.
+• Do NOT automatically open a project.
+• The website will display the project previews separately.
+
+IMPORTANT:
+
+The portfolio tool provides background information to help you answer the user's question. It does NOT mean all returned information should be included in the response.
+
+Use the tool data to understand the project, then summarize it naturally in 1-2 sentences.
+
+The default portfolio response must be SHORT.
+
+
 
 BOOKING: If the user wants to meet, book, or discuss further, use the word "CONSULTATION" in your response to trigger the booking tool.
 
@@ -138,6 +199,58 @@ FORMATTING RULES (STRICT)
           }),
           execute: async () => ({ status: "modal_triggered" })
         }),
+
+       searchPortfolio: tool({
+  description:
+    "Search ZI Creates' portfolio for relevant past projects. Use this whenever the user asks about previous work, examples, industries, services, websites, branding, marketing, design, video, ecommerce, or other portfolio experience.",
+  parameters: z.object({
+    query: z
+      .string()
+      .describe(
+        "The service, industry, project type, or keyword to search for"
+      ),
+  }),
+
+  execute: async ({ query }) => {
+    try {
+      const projects = await sanityClient.fetch(
+        `*[
+          _type == "portfolio" &&
+          (
+            type match $search ||
+            category match $search ||
+            brand match $search ||
+            caption match $search ||
+            description match $search
+          )
+        ][0...6]{
+          _id,
+          brand,
+          caption,
+          type,
+          category,
+          "src": src.asset->url,
+          "thumbnail": thumbnail.asset->url,
+          videoUrl,
+          media,
+          description,
+          involvement,
+          summaryHighlights
+        }`,
+        {
+          search: `*${query}*`,
+        }
+      );
+
+      return projects || [];
+    } catch (error) {
+      console.error("Portfolio search error:", error);
+      return [];
+    }
+  },
+}),
+
+
       },
     });
 

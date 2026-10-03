@@ -154,7 +154,7 @@ const PaymentModal = ({ isOpen, onClose, selectedPlan }: PaymentModalProps) => {
                   Onboarding
                 </span>
                 <h2 className="text-3xl md:text-5xl font-bold tracking-tighter">
-                  Let’s get you <span className="text-primary italic font-serif font-light">started</span>
+                  Let’s get you <span className="text-primary italic  font-light">started</span>
                 </h2>
               </div>
               <button 

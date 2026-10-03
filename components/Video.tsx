@@ -69,7 +69,7 @@ export default function GraphicProductDesign({ onOpenBookCall }: GraphicProductD
 
             <h1 className="text-5xl lg:text-7xl font-bold leading-[1.05] tracking-tighter">
               Crafting Visuals <br />
-              <span className="text-primary italic font-serif font-light">That Solve</span>
+              <span className="text-primary italic  font-light">That Solve</span>
             </h1>
 
             <div className="space-y-6 text-neutral/50 text-xl font-light leading-relaxed">
@@ -110,7 +110,7 @@ export default function GraphicProductDesign({ onOpenBookCall }: GraphicProductD
             className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-4"
           >
             <h2 className="text-4xl md:text-5xl font-bold tracking-tighter">
-              Our <span className="text-neutral/20 italic font-serif font-light">Disciplines</span>
+              Our <span className="text-neutral/20 italic  font-light">Disciplines</span>
             </h2>
             <div className="h-px flex-1 bg-neutral/10 mx-8 mb-4 hidden md:block" />
             <p className="text-neutral/40 text-xs uppercase tracking-widest font-bold">
@@ -162,7 +162,7 @@ export default function GraphicProductDesign({ onOpenBookCall }: GraphicProductD
           <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/[0.03] to-transparent pointer-events-none" />
           
           <h2 className="text-4xl lg:text-5xl font-bold mb-20 tracking-tighter relative z-10">
-            Why Choose <span className="text-primary italic font-serif">Zi Creates</span>?
+            Why Choose <span className="text-primary italic ">Zi Creates</span>?
           </h2>
 
           <div className="grid md:grid-cols-2 gap-x-20 gap-y-16 relative z-10">

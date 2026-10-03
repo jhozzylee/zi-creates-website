@@ -3,6 +3,8 @@ import "./globals.css";
 import Header from "@/components/Header";
 import AIChatClient from "@/components/AIChatClient";
 import ScrollFix from "@/components/ScrollFix";
+import { PortfolioProvider } from "@/context/PortfolioContext";
+
 import { Metadata } from "next";
 
 const poppins = Poppins({
@@ -51,11 +53,15 @@ export default function RootLayout({
       >
         <ScrollFix /> {/* [Add this component here] */}
         <Header />
+        <PortfolioProvider>
         <main>{children}</main>
+        
 
         {/* Client-only AI widget */}
         <AIChatClient />
+        </PortfolioProvider>
       </body>
+      
     </html>
   );
 }

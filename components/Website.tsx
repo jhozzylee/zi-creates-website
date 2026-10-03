@@ -69,7 +69,7 @@ const WebsiteModal = ({ isOpen, onClose }: WebsiteProps) => {
                     Digital Presence
                   </span>
                   <h2 className="text-[28px] md:text-[48px] font-bold leading-tight tracking-tight">
-                    The Digital <span className="text-primary italic font-serif font-light">Front Door</span>
+                    The Digital <span className="text-primary italic  font-light">Front Door</span>
                   </h2>
                 </div>
 

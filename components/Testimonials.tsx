@@ -159,7 +159,7 @@ const Testimonials = () => {
           <span className="text-primary text-[11px] font-bold uppercase tracking-[0.5em] block mb-4">Social Proof</span>
           <h2 className="text-4xl md:text-6xl font-bold tracking-tighter">
             Stories that make <br />
-            <span className="text-neutral/20 italic font-light font-serif">us proud</span>
+            <span className="text-neutral/20 italic font-light ">us proud</span>
           </h2>
         </motion.div>
 

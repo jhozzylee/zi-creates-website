@@ -59,7 +59,7 @@ export default function AIAutomation({ onOpenBookCall }: AIAutomationProps) {
 
             <h1 className="text-4xl lg:text-6xl font-bold leading-[1.1] tracking-tighter">
               Scaling Your Business at the Speed of{" "}
-              <span className="text-primary italic font-serif font-light">Thought</span>
+              <span className="text-primary italic  font-light">Thought</span>
             </h1>
 
             <div className="space-y-6 text-neutral/60 text-lg font-light leading-relaxed">

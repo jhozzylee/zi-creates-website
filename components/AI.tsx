@@ -69,7 +69,7 @@ const AIAutomationModal = ({ isOpen, onClose }: AIAutomationModalProps) => {
                     Future-Proof Operations
                   </span>
                   <h2 className="text-[28px] md:text-[48px] font-bold leading-tight tracking-tight">
-                    AI <span className="text-primary italic font-serif font-light">Automation</span>
+                    AI <span className="text-primary italic  font-light">Automation</span>
                   </h2>
                 </div>
 

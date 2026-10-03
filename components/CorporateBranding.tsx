@@ -56,7 +56,7 @@ export default function CorporateBranding({ onOpenBookCall }: CorporateBrandingP
             <span className="uppercase tracking-[0.4em] text-[11px] font-bold text-primary">Corporate Branding</span>
             <h1 className="text-4xl lg:text-6xl font-bold leading-[1.1] tracking-tighter">
               Building Identities That <br />
-              <span className="text-primary italic font-serif font-light">Command Authority</span>
+              <span className="text-primary italic  font-light">Command Authority</span>
             </h1>
             <div className="space-y-6 text-neutral/60 text-lg font-light leading-relaxed max-w-xl">
               <p>
@@ -108,7 +108,7 @@ export default function CorporateBranding({ onOpenBookCall }: CorporateBrandingP
             className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4"
           >
             <h2 className="text-4xl md:text-5xl font-bold tracking-tighter max-w-md">
-              Identity <span className="text-neutral/30 font-light italic font-serif">Pillars</span>
+              Identity <span className="text-neutral/30 font-light italic ">Pillars</span>
             </h2>
             <div className="h-[1px] flex-1 bg-neutral/10 mx-8 mb-4 hidden md:block"></div>
             <p className="text-neutral/40 md:max-w-xs text-sm uppercase tracking-widest font-bold">The foundation of authority.</p>

@@ -109,7 +109,7 @@ export default function ClientDashboard() {
                 Executive Portal
               </span>
               <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tighter leading-none mb-6 break-words">
-                {data.profile?.name || "Client"}<span className="text-[#30D5C8] italic font-serif font-light">.</span>
+                {data.profile?.name || "Client"}<span className="text-[#30D5C8] italic  font-light">.</span>
               </h1>
               
               <div className="flex flex-wrap gap-3">
@@ -126,7 +126,7 @@ export default function ClientDashboard() {
               {data.payments.slice(0, 2).map((pay: any) => (
                 <div key={pay.id}>
                   <p className="text-[9px] uppercase tracking-[0.3em] text-white/30 font-bold mb-1">Investment //</p>
-                  <p className="text-2xl md:text-3xl font-serif italic font-light">${pay.amount.toLocaleString()}</p>
+                  <p className="text-2xl md:text-3xl  italic font-light">${pay.amount.toLocaleString()}</p>
                   <p className={`text-[9px] uppercase tracking-widest font-bold mt-1 ${pay.status === 'Paid' ? 'text-[#30D5C8]' : 'text-red-400'}`}>
                     {pay.status}
                   </p>
@@ -165,7 +165,7 @@ export default function ClientDashboard() {
                         </p>
                       </div>
                     </div>
-                    <p className="text-3xl sm:text-4xl font-light font-serif text-[#30D5C8] italic self-end sm:self-auto">{project.progress}%</p>
+                    <p className="text-3xl sm:text-4xl font-light  text-[#30D5C8] italic self-end sm:self-auto">{project.progress}%</p>
                   </div>
 
                   <div className="w-full bg-white/5 h-[2px] rounded-full overflow-hidden mb-8 md:mb-12">

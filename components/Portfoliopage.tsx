@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion"; // Added motion imports
+import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "next-sanity";
-import PortfolioModal from "./PortfolioModal";
+import { usePortfolio } from "@/context/PortfolioContext";
 
 // Sanity client
 const client = createClient({
@@ -13,7 +13,15 @@ const client = createClient({
   apiVersion: "2024-01-01",
 });
 
-const filters = ["All", "Branding", "Websites", "Marketing", "Designs", "Motion Designs", "Product Designs"];
+const filters = [
+  "All",
+  "Branding",
+  "Websites",
+  "Marketing",
+  "Designs",
+  "Motion Designs",
+  "Product Designs",
+];
 
 export interface PortfolioItem {
   _id: string;
@@ -27,35 +35,63 @@ export interface PortfolioItem {
   videoUrl?: string;
   media?: string;
   description?: string;
-  involvement?: string;
-  summaryHighlights?: string;
+  involvement?: string[];
+  summaryHighlights?: {
+    title?: string;
+    text?: string;
+  }[];
   related?: PortfolioItem[];
 }
 
 const Portfoliopage: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<string>("All");
-  const [selectedProject, setSelectedProject] = useState<PortfolioItem | null>(null);
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
   const buttonRefs = useRef<HTMLButtonElement[]>([]);
 
+  const { openProject } = usePortfolio();
+
   useEffect(() => {
     const fetchPortfolio = async () => {
-      const query = `*[_type == "portfolio"]{
-        _id, brand, caption, type, category,
-        "src": src.asset->url,
-        "thumbnail": thumbnail.asset->url,
-        "videoSrc": videoFile.asset->url,
-        videoUrl, media, description, involvement, summaryHighlights,
-        "related": related[]->{
-            _id, brand, caption, type, category,
+      try {
+        const query = `*[_type == "portfolio"]{
+          _id,
+          brand,
+          caption,
+          type,
+          category,
+          "src": src.asset->url,
+          "thumbnail": thumbnail.asset->url,
+          "videoSrc": videoFile.asset->url,
+          videoUrl,
+          media,
+          description,
+          involvement,
+          summaryHighlights,
+          "related": related[]->{
+            _id,
+            brand,
+            caption,
+            type,
+            category,
             "src": src.asset->url,
             "thumbnail": thumbnail.asset->url,
-            videoUrl, description, involvement, summaryHighlights
-        }
-      }`;
-      const data: PortfolioItem[] = await client.fetch(query);
-      setPortfolioItems(data);
+            "videoSrc": videoFile.asset->url,
+            videoUrl,
+            media,
+            description,
+            involvement,
+            summaryHighlights
+          }
+        }`;
+
+        const data: PortfolioItem[] = await client.fetch(query);
+
+        setPortfolioItems(data);
+      } catch (error) {
+        console.error("Failed to fetch portfolio:", error);
+      }
     };
+
     fetchPortfolio();
   }, []);
 
@@ -65,10 +101,13 @@ const Portfoliopage: React.FC = () => {
       : portfolioItems.filter((item) => item.type === activeFilter);
 
   return (
-    <section className="bg-background text-neutral py-24 md:py-32 px-6">
+    <section
+      id="portfolio"
+      className="bg-background text-neutral py-24 md:py-32 px-6"
+    >
       <div className="max-w-[1280px] mx-auto">
-        {/* Header with entrance animation */}
-        <motion.div 
+        {/* Header */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -77,6 +116,7 @@ const Portfoliopage: React.FC = () => {
           <span className="uppercase tracking-[0.3em] text-[10px] font-bold text-primary mb-2 block">
             Our Work
           </span>
+
           <h2 className="text-[32px] md:text-[48px] font-bold tracking-tight">
             Creative <span className="text-primary">Footprints</span>
           </h2>
@@ -87,27 +127,38 @@ const Portfoliopage: React.FC = () => {
           {filters.map((filter, index) => (
             <button
               key={filter}
-              ref={(el) => { if (el) buttonRefs.current[index] = el; }}
+              ref={(el) => {
+                if (el) buttonRefs.current[index] = el;
+              }}
               onClick={() => setActiveFilter(filter)}
               className={`
                 relative flex-shrink-0 text-xs md:text-sm font-medium transition-all duration-300
-                ${activeFilter === filter ? "text-primary" : "text-neutral/40 hover:text-neutral"}
+                ${
+                  activeFilter === filter
+                    ? "text-primary"
+                    : "text-neutral/40 hover:text-neutral"
+                }
               `}
             >
               {filter}
+
               {activeFilter === filter && (
-                <motion.div 
+                <motion.div
                   layoutId="activeTab"
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                  className="absolute -bottom-[17px] left-0 w-full h-[2px] bg-primary" 
+                  transition={{
+                    type: "spring",
+                    bounce: 0.2,
+                    duration: 0.6,
+                  }}
+                  className="absolute -bottom-[17px] left-0 w-full h-[2px] bg-primary"
                 />
               )}
             </button>
           ))}
         </div>
 
-        {/* Portfolio Grid with FLIP animations */}
-        <motion.div 
+        {/* Portfolio Grid */}
+        <motion.div
           layout
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
         >
@@ -115,13 +166,13 @@ const Portfoliopage: React.FC = () => {
             {filteredItems.map((item) => (
               <motion.div
                 key={item._id}
-                layout // This makes items glide when the filter changes
+                layout
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.4 }}
                 className="group cursor-pointer"
-                onClick={() => setSelectedProject(item)}
+                onClick={() => openProject(item)}
               >
                 <div className="relative aspect-square rounded-2xl overflow-hidden bg-neutral/5 border border-neutral/10">
                   {item.media === "video" ? (
@@ -150,7 +201,10 @@ const Portfoliopage: React.FC = () => {
                 </div>
 
                 <div className="mt-4 px-1">
-                  <h3 className="text-sm font-bold truncate">{item.brand}</h3>
+                  <h3 className="text-sm font-bold truncate">
+                    {item.brand}
+                  </h3>
+
                   <p className="text-[11px] text-neutral/40 uppercase tracking-wider mt-0.5">
                     {item.caption}
                   </p>
@@ -160,17 +214,6 @@ const Portfoliopage: React.FC = () => {
           </AnimatePresence>
         </motion.div>
       </div>
-
-      {/* Portfolio Modal */}
-      <AnimatePresence>
-        {selectedProject && (
-          <PortfolioModal
-            project={selectedProject}
-            onClose={() => setSelectedProject(null)}
-            setProject={setSelectedProject}
-          />
-        )}
-      </AnimatePresence>
     </section>
   );
 };

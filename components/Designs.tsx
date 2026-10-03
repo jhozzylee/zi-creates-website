@@ -59,7 +59,7 @@ export default function GraphicProductDesign({
 
             <h1 className="text-4xl lg:text-6xl font-bold leading-[1.1] tracking-tighter">
               Crafting Visuals That <br />
-              <span className="text-primary italic font-serif font-light">Solve Problems</span>
+              <span className="text-primary italic  font-light">Solve Problems</span>
             </h1>
 
             <div className="space-y-6 text-neutral/60 text-lg font-light leading-relaxed">
@@ -99,7 +99,7 @@ export default function GraphicProductDesign({
         <div className="mb-32">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4">
             <h2 className="text-4xl md:text-5xl font-bold tracking-tighter">
-              Our <span className="text-neutral/30 font-light italic font-serif">Disciplines</span>
+              Our <span className="text-neutral/30 font-light italic ">Disciplines</span>
             </h2>
           </div>
 

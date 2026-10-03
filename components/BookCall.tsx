@@ -66,7 +66,7 @@ const BookCall = ({ isOpen, onClose }: BookCallProps) => {
               <div className="space-y-1">
                 <span className="uppercase tracking-widest text-[10px] font-bold text-primary">Strategy Session</span>
                 <h2 className="text-2xl md:text-3xl font-bold text-neutral tracking-tight">
-                  Let’s build a <span className="text-primary italic font-serif font-light">Smarter Brand</span>
+                  Let’s build a <span className="text-primary italic  font-light">Smarter Brand</span>
                 </h2>
               </div>
               <button

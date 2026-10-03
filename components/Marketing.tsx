@@ -69,7 +69,7 @@ const MarketingModal = ({ isOpen, onClose }: MarketingProps) => {
                     Drive Growth
                   </span>
                   <h2 className="text-[28px] md:text-[48px] font-bold leading-tight tracking-tight">
-                    Strategic <span className="text-primary italic font-serif font-light">Marketing</span>
+                    Strategic <span className="text-primary italic  font-light">Marketing</span>
                   </h2>
                 </div>
 

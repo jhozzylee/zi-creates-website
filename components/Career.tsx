@@ -86,7 +86,7 @@ const Careers = () => {
 
           <h1 className="text-[40px] sm:text-[50px] lg:text-[72px] font-bold leading-[1.05] mb-8 tracking-tighter">
             Engineer the{" "}
-            <span className="text-primary italic font-serif font-light">
+            <span className="text-primary italic  font-light">
               future
             </span>{" "}
             <br />
@@ -145,7 +145,7 @@ const Careers = () => {
               className="text-4xl font-bold tracking-tight"
             >
               Why Join{" "}
-              <span className="text-neutral/20 italic font-serif">
+              <span className="text-neutral/20 italic ">
                 Zi Creates?
               </span>
             </motion.h2>
@@ -203,7 +203,7 @@ const Careers = () => {
           <div className="max-w-2xl mx-auto relative z-10">
             <h2 className="text-4xl lg:text-6xl font-bold mb-8 tracking-tighter">
               Join the{" "}
-              <span className="text-primary italic font-serif font-light">
+              <span className="text-primary italic  font-light">
                 Network.
               </span>
             </h2>

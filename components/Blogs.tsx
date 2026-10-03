@@ -41,7 +41,7 @@ export default async function BlogContent() {
           </div>
           <h1 className="text-6xl md:text-9xl font-bold tracking-tighter leading-[0.85] mb-12">
             Digital <br />
-            <span className="text-neutral/10 italic font-light font-serif">Archive</span>
+            <span className="text-neutral/10 italic font-light ">Archive</span>
           </h1>
           {/* Static Border to prevent layout jump */}
           <div className="h-[1px] w-full bg-neutral/10" />
@@ -73,7 +73,7 @@ export default async function BlogContent() {
                       priority={isFeature}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center opacity-5 italic font-serif">
+                    <div className="w-full h-full flex items-center justify-center opacity-5 italic ">
                       No Visual
                     </div>
                   )}

@@ -71,7 +71,7 @@ export default function WebsiteDevelopment({ onOpenBookCall }: WebsiteDevelopmen
 
             <h1 className="text-5xl lg:text-7xl font-bold leading-[1.05] tracking-tighter">
               Digital Hubs for <br />
-              <span className="text-primary italic font-serif font-light">Modern Brands</span>
+              <span className="text-primary italic  font-light">Modern Brands</span>
             </h1>
 
             <div className="space-y-6 text-neutral/50 text-xl font-light leading-relaxed">
@@ -109,7 +109,7 @@ export default function WebsiteDevelopment({ onOpenBookCall }: WebsiteDevelopmen
             className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-4"
           >
             <h2 className="text-4xl md:text-5xl font-bold tracking-tighter">
-              Core <span className="text-neutral/20 italic font-serif font-light">Capabilities</span>
+              Core <span className="text-neutral/20 italic  font-light">Capabilities</span>
             </h2>
             <div className="h-px flex-1 bg-neutral/10 mx-8 mb-4 hidden md:block" />
             <p className="text-neutral/40 text-xs uppercase tracking-widest font-bold">
@@ -166,7 +166,7 @@ export default function WebsiteDevelopment({ onOpenBookCall }: WebsiteDevelopmen
                style={{ backgroundImage: 'radial-gradient(circle, #30D5C8 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
 
           <h2 className="text-4xl lg:text-5xl font-bold mb-20 tracking-tighter relative z-10">
-            Engineered for <span className="text-primary italic font-serif">Impact</span>
+            Engineered for <span className="text-primary italic ">Impact</span>
           </h2>
 
           <div className="grid md:grid-cols-2 gap-x-20 gap-y-16 relative z-10">

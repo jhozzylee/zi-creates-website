@@ -69,7 +69,7 @@ const BrandingModal = ({ isOpen, onClose }: BrandingProps) => {
                     Identity & Strategy
                   </span>
                   <h2 className="text-[28px] md:text-[48px] font-bold leading-tight tracking-tight">
-                    The Soul of <span className="text-primary italic font-serif font-light">Your Business</span>
+                    The Soul of <span className="text-primary italic  font-light">Your Business</span>
                   </h2>
                 </div>
 
