@@ -8,11 +8,18 @@ export default defineType({
     { name: "brand", title: "Brand", type: "string" },
     { name: "caption", title: "Caption", type: "string" },
     { name: "category", title: "Category", type: "string" },
+
+    
+{
+  name: "types",
+  title: "Project Types",
+  description: "Select all types of work included in this project.",
+  type: "array",
+  of: [
     {
-      name: "type",
-      title: "Type",
       type: "string",
       options: {
+        layout: "dropdown",
         list: [
           { title: "Branding", value: "Branding" },
           { title: "Websites", value: "Websites" },
@@ -21,11 +28,14 @@ export default defineType({
           { title: "Motion Designs", value: "Motion Designs" },
           { title: "Product Designs", value: "Product Designs" },
           { title: "Video", value: "video" },
+          { title: "AI Automation", value: "AI Automation" },
         ],
-        layout: "dropdown",
       },
-      validation: (Rule) => Rule.required(),
     },
+  ],
+  validation: (Rule) => Rule.required().min(1).unique(),
+},
+
     {
       name: "src",
       title: "Media",
@@ -41,6 +51,7 @@ export default defineType({
     { name: "videoUrl", title: "Video Embed URL", type: "url" },
     { name: "clientLink", title: "Client Link", type: "url" },
     { name: "description", title: "Description", type: "text" },
+
     {
       name: "summaryHighlights",
       title: "Summary Highlights",
@@ -55,12 +66,14 @@ export default defineType({
         },
       ],
     },
+
     {
       name: "involvement",
       title: "Zi Creates Involvement",
       type: "array",
       of: [{ type: "string" }],
     },
+
     {
       name: "related",
       title: "Related Projects",
@@ -72,12 +85,17 @@ export default defineType({
   preview: {
     select: {
       title: "brand",
+      subtitle: "types",
       media: "thumbnail",
     },
     prepare(selection) {
-      const { title, media } = selection;
+      const { title, subtitle, media } = selection;
+
       return {
         title: title || "No file name",
+        subtitle: Array.isArray(subtitle)
+          ? subtitle.join(", ")
+          : undefined,
         media,
       };
     },

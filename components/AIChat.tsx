@@ -8,14 +8,17 @@ import PaymentModal from "./PaymentModal";
 import ReactMarkdown from "react-markdown";
 import { usePortfolio } from "@/context/PortfolioContext";
 
+
 interface PortfolioProject {
   _id: string;
   brand: string;
   caption?: string;
   type: string;
+  types?: string[];
   category?: string;
   src?: string;
   thumbnail?: string;
+  videoSrc?: string;
   videoUrl?: string;
   media?: string;
   description?: string;
@@ -25,6 +28,7 @@ interface PortfolioProject {
     text?: string;
   }[];
 }
+
 
 function PortfolioResults({
   projects,
@@ -73,7 +77,7 @@ function PortfolioResults({
               </p>
 
               <p className="text-[9px] uppercase tracking-wider text-neutral/30 mt-0.5 truncate">
-                {project.category || project.type}
+                {project.types?.join(" • ") || project.category || project.type}
               </p>
             </div>
           </button>

@@ -200,15 +200,14 @@ FORMATTING RULES (STRICT)
           execute: async () => ({ status: "modal_triggered" })
         }),
 
-       searchPortfolio: tool({
+searchPortfolio: tool({
   description:
-    "Search ZI Creates' portfolio for relevant past projects. Use this whenever the user asks about previous work, examples, industries, services, websites, branding, marketing, design, video, ecommerce, or other portfolio experience.",
+    "Search ZI Creates' portfolio for relevant past projects. Use this whenever the user asks about previous work, examples, industries, services, websites, branding, marketing, design, video, ecommerce, AI automation, or other portfolio experience.",
+
   parameters: z.object({
     query: z
       .string()
-      .describe(
-        "The service, industry, project type, or keyword to search for"
-      ),
+      .describe("The service, industry, project type, or keyword to search for"),
   }),
 
   execute: async ({ query }) => {
@@ -218,6 +217,7 @@ FORMATTING RULES (STRICT)
           _type == "portfolio" &&
           (
             type match $search ||
+            types[] match $search ||
             category match $search ||
             brand match $search ||
             caption match $search ||
@@ -228,9 +228,11 @@ FORMATTING RULES (STRICT)
           brand,
           caption,
           type,
+          types,
           category,
           "src": src.asset->url,
           "thumbnail": thumbnail.asset->url,
+          "videoSrc": videoSrc,
           videoUrl,
           media,
           description,
@@ -238,7 +240,7 @@ FORMATTING RULES (STRICT)
           summaryHighlights
         }`,
         {
-          search: `*${query}*`,
+          search: `*${query.trim()}*`,
         }
       );
 

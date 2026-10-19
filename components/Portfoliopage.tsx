@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
@@ -5,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "next-sanity";
 import { usePortfolio } from "@/context/PortfolioContext";
 
-// Sanity client
 const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "j61z87re",
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
@@ -21,13 +21,16 @@ const filters = [
   "Designs",
   "Motion Designs",
   "Product Designs",
+  "Video",
+  "AI Automation",
 ];
 
-export interface PortfolioItem {
+interface PortfolioItem {
   _id: string;
   brand: string;
   caption?: string;
-  type: string;
+  type?: string;
+  types?: string[];
   category?: string;
   src?: string;
   thumbnail?: string;
@@ -43,14 +46,36 @@ export interface PortfolioItem {
   related?: PortfolioItem[];
 }
 
+/**
+ * A context-compatible project shape.
+ * Every project, including nested related projects, has a string `type`.
+ */
+interface NormalizedPortfolioProject
+  extends Omit<PortfolioItem, "type" | "related"> {
+  type: string;
+  related?: NormalizedPortfolioProject[];
+}
+
+const normalizeProject = (
+  item: PortfolioItem
+): NormalizedPortfolioProject => {
+  return {
+    ...item,
+    type: item.type || item.types?.[0] || "",
+    related: item.related?.map(normalizeProject),
+  };
+};
+
 const Portfoliopage: React.FC = () => {
-  const [activeFilter, setActiveFilter] = useState<string>("All");
+  const [activeFilter, setActiveFilter] = useState("All");
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
   const buttonRefs = useRef<HTMLButtonElement[]>([]);
 
   const { openProject } = usePortfolio();
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchPortfolio = async () => {
       try {
         const query = `*[_type == "portfolio"]{
@@ -58,6 +83,7 @@ const Portfoliopage: React.FC = () => {
           brand,
           caption,
           type,
+          types,
           category,
           "src": src.asset->url,
           "thumbnail": thumbnail.asset->url,
@@ -72,6 +98,7 @@ const Portfoliopage: React.FC = () => {
             brand,
             caption,
             type,
+            types,
             category,
             "src": src.asset->url,
             "thumbnail": thumbnail.asset->url,
@@ -80,25 +107,54 @@ const Portfoliopage: React.FC = () => {
             media,
             description,
             involvement,
-            summaryHighlights
+            summaryHighlights,
+            "related": related[]->{
+              _id,
+              brand,
+              caption,
+              type,
+              types,
+              category,
+              "src": src.asset->url,
+              "thumbnail": thumbnail.asset->url,
+              "videoSrc": videoFile.asset->url,
+              videoUrl,
+              media,
+              description,
+              involvement,
+              summaryHighlights
+            }
           }
         }`;
 
         const data: PortfolioItem[] = await client.fetch(query);
 
-        setPortfolioItems(data);
+        if (isMounted) {
+          setPortfolioItems(data);
+        }
       } catch (error) {
         console.error("Failed to fetch portfolio:", error);
       }
     };
 
     fetchPortfolio();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const filteredItems: PortfolioItem[] =
+  const filteredItems =
     activeFilter === "All"
       ? portfolioItems
-      : portfolioItems.filter((item) => item.type === activeFilter);
+      : portfolioItems.filter((item) => {
+          const projectTypes = [
+            ...(item.types || []),
+            ...(item.type ? [item.type] : []),
+          ];
+
+          return projectTypes.includes(activeFilter);
+        });
 
   return (
     <section
@@ -131,6 +187,7 @@ const Portfoliopage: React.FC = () => {
                 if (el) buttonRefs.current[index] = el;
               }}
               onClick={() => setActiveFilter(filter)}
+              aria-pressed={activeFilter === filter}
               className={`
                 relative flex-shrink-0 text-xs md:text-sm font-medium transition-all duration-300
                 ${
@@ -172,7 +229,7 @@ const Portfoliopage: React.FC = () => {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.4 }}
                 className="group cursor-pointer"
-                onClick={() => openProject(item)}
+                onClick={() => openProject(normalizeProject(item))}
               >
                 <div className="relative aspect-square rounded-2xl overflow-hidden bg-neutral/5 border border-neutral/10">
                   {item.media === "video" ? (
@@ -182,14 +239,17 @@ const Portfoliopage: React.FC = () => {
                       muted
                       loop
                       playsInline
-                      onMouseOver={(e) => e.currentTarget.play()}
+                      onMouseOver={(e) => {
+                        void e.currentTarget.play().catch(() => {});
+                      }}
                       onMouseOut={(e) => e.currentTarget.pause()}
                     />
                   ) : (
                     <img
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      src={item.thumbnail || item.src}
+                      src={item.thumbnail || item.src || ""}
                       alt={item.brand}
+                      loading="lazy"
                     />
                   )}
 
@@ -213,6 +273,13 @@ const Portfoliopage: React.FC = () => {
             ))}
           </AnimatePresence>
         </motion.div>
+
+        {/* Empty State */}
+        {filteredItems.length === 0 && (
+          <p className="py-12 text-center text-sm text-neutral/50">
+            No projects found in this category yet.
+          </p>
+        )}
       </div>
     </section>
   );

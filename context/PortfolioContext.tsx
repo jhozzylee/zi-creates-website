@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { createContext, useContext, useState } from "react";
@@ -8,7 +9,13 @@ export interface PortfolioProject {
   _id: string;
   brand: string;
   caption?: string;
+
+  // Legacy field for existing portfolio entries
   type: string;
+
+  // Multiple project categories from Sanity
+  types?: string[];
+
   category?: string;
   src?: string;
   thumbnail?: string;
@@ -21,6 +28,7 @@ export interface PortfolioProject {
     title?: string;
     text?: string;
   }[];
+
   related?: PortfolioProject[];
 }
 
