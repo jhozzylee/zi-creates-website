@@ -46,10 +46,6 @@ export interface PortfolioItem {
   related?: PortfolioItem[];
 }
 
-/**
- * A context-compatible project shape.
- * Every project, including nested related projects, has a string `type`.
- */
 interface NormalizedPortfolioProject
   extends Omit<PortfolioItem, "type" | "related"> {
   type: string;
@@ -159,7 +155,7 @@ const Portfoliopage: React.FC = () => {
   return (
     <section
       id="portfolio"
-      className="bg-background text-neutral py-24 md:py-32 px-6"
+      className="bg-background text-neutral py-12 sm:py-16 md:py-32 px-4 sm:px-6"
     >
       <div className="max-w-[1280px] mx-auto">
         {/* Header */}
@@ -167,19 +163,19 @@ const Portfoliopage: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mb-16"
+          className="mb-8 sm:mb-12 md:mb-16"
         >
           <span className="uppercase tracking-[0.3em] text-[10px] font-bold text-primary mb-2 block">
             Our Work
           </span>
 
-          <h2 className="text-[32px] md:text-[48px] font-bold tracking-tight">
+          <h2 className="text-[28px] sm:text-[36px] md:text-[48px] font-bold tracking-tight">
             Creative <span className="text-primary">Footprints</span>
           </h2>
         </motion.div>
 
         {/* Filter Navigation */}
-        <div className="flex gap-6 overflow-x-auto no-scrollbar border-b border-neutral/10 mb-12 pb-4">
+        <div className="flex gap-5 sm:gap-6 overflow-x-auto no-scrollbar border-b border-neutral/10 mb-6 sm:mb-8 md:mb-12 pb-4">
           {filters.map((filter, index) => (
             <button
               key={filter}
@@ -189,7 +185,7 @@ const Portfoliopage: React.FC = () => {
               onClick={() => setActiveFilter(filter)}
               aria-pressed={activeFilter === filter}
               className={`
-                relative flex-shrink-0 text-xs md:text-sm font-medium transition-all duration-300
+                relative flex-shrink-0 whitespace-nowrap text-xs md:text-sm font-medium transition-colors duration-300
                 ${
                   activeFilter === filter
                     ? "text-primary"
@@ -217,21 +213,22 @@ const Portfoliopage: React.FC = () => {
         {/* Portfolio Grid */}
         <motion.div
           layout
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-6 sm:gap-4 md:gap-6"
         >
           <AnimatePresence mode="popLayout">
             {filteredItems.map((item) => (
               <motion.div
                 key={item._id}
                 layout
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
+                exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.4 }}
-                className="group cursor-pointer"
+                className="group min-w-0 cursor-pointer"
                 onClick={() => openProject(normalizeProject(item))}
               >
-                <div className="relative aspect-square rounded-2xl overflow-hidden bg-neutral/5 border border-neutral/10">
+                {/* Project Image */}
+                <div className="relative aspect-square overflow-hidden rounded-xl sm:rounded-2xl bg-neutral/5 border border-neutral/10">
                   {item.media === "video" ? (
                     <video
                       src={item.videoSrc || item.src}
@@ -253,21 +250,25 @@ const Portfoliopage: React.FC = () => {
                     />
                   )}
 
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-5">
-                    <p className="text-[10px] uppercase tracking-widest text-primary font-bold">
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 flex items-end bg-gradient-to-t from-background/80 via-transparent to-transparent p-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:p-5">
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-primary sm:text-[10px]">
                       View Project
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-4 px-1">
-                  <h3 className="text-sm font-bold truncate">
+                {/* Project Details */}
+                <div className="mt-2 min-w-0 px-0.5 sm:mt-4 sm:px-1">
+                  <h3 className="truncate text-xs font-bold sm:text-sm">
                     {item.brand}
                   </h3>
 
-                  <p className="text-[11px] text-neutral/40 uppercase tracking-wider mt-0.5">
-                    {item.caption}
-                  </p>
+                  {item.caption && (
+                    <p className="mt-0.5 truncate text-[9px] uppercase tracking-wider text-neutral/40 sm:text-[11px]">
+                      {item.caption}
+                    </p>
+                  )}
                 </div>
               </motion.div>
             ))}
