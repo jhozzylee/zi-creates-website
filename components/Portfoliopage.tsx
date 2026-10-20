@@ -25,7 +25,7 @@ const filters = [
   "AI Automation",
 ];
 
-interface PortfolioItem {
+export interface PortfolioItem {
   _id: string;
   brand: string;
   caption?: string;
